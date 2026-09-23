@@ -24,6 +24,9 @@ META_DIR=/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFa
 N_REFS=2                 # 每条样本的参考人数，必须与数据里「既说话又有音频」的人数一致
 NUM_FRAMES=121           # 目标窗口帧数 @24fps（121 = 5.0s）
 REF_AUDIO_SECONDS=1.0    # 每人参考音频长度；窗口越长/参考越长，可用样本越少
+# 品质门开关（只影响转换脚本的过滤；置 1 放宽，默认严格）
+ALLOW_QA_FAIL=${ALLOW_QA_FAIL:-0}                    # 1 → 保留 QA 未通过的样本（--no-require-qa-pass）
+ALLOW_OFFSCREEN_SPEECH=${ALLOW_OFFSCREEN_SPEECH:-0}  # 1 → 保留含画外人声的样本（--allow-offscreen-speech）
 
 # --- 3. 训练 ---
 CKPT_DIR=/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/ckpts   # 内含 Ovi/model.safetensors 与 InsightFace/
@@ -99,6 +102,9 @@ echo "数据列表    : ${CLIP_LIST:-(无，使用 $VIDEO_ROOT/<id>.mp4)}"
 echo "参考特征目录: $FEAT_DIR"
 echo "meta CSV    : $META_CSV"
 echo "参考人数    : $N_REFS | 目标窗口: $NUM_FRAMES 帧 | 参考音频: ${REF_AUDIO_SECONDS}s (${REF_AUDIO_FRAMES} 帧)"
+QA_NOTE="严格（丢弃 QA 未通过样本）"; [[ "$ALLOW_QA_FAIL" == "1" ]] && QA_NOTE="放宽（保留 QA 未通过样本）"
+OFFSCREEN_NOTE="丢弃含画外人声的样本"; [[ "$ALLOW_OFFSCREEN_SPEECH" == "1" ]] && OFFSCREEN_NOTE="保留含画外人声的样本"
+echo "品质门      : QA ${QA_NOTE} | ${OFFSCREEN_NOTE}"
 echo "机器/进程   : ${NUM_MACHINES} 台 × ${NPROC_PER_NODE} = ${NUM_PROCESSES} | 梯度累积: ${GRAD_ACC_STEPS}"
 echo "加速配置    : $ACCEL_CFG"
 echo "=================================================================="
@@ -147,6 +153,9 @@ if [[ $RUN_META -eq 1 ]]; then
       # 转换脚本在基准明显不对时会自动探测并打印提示
       LIST_ARGS=(--list "$CLIP_LIST" --list-base "${LIST_BASE:-$VIDEO_ROOT}")
     fi
+    FILTER_ARGS=()
+    [[ "$ALLOW_QA_FAIL" == "1" ]] && FILTER_ARGS+=(--no-require-qa-pass)
+    [[ "$ALLOW_OFFSCREEN_SPEECH" == "1" ]] && FILTER_ARGS+=(--allow-offscreen-speech)
     "$PYTHON_BIN" dataset/build_meta_from_avannotate.py \
       --annotation-root "$ANN_ROOT" \
       --video-root      "$VIDEO_ROOT" \
@@ -155,7 +164,8 @@ if [[ $RUN_META -eq 1 ]]; then
       --n-refs          "$N_REFS" \
       --num-frames      "$NUM_FRAMES" \
       --ref-audio-seconds "$REF_AUDIO_SECONDS" \
-      ${LIST_ARGS[@]+"${LIST_ARGS[@]}"}
+      ${LIST_ARGS[@]+"${LIST_ARGS[@]}"} \
+      ${FILTER_ARGS[@]+"${FILTER_ARGS[@]}"}
   fi
   [[ -f "$META_CSV" ]] || fail "meta CSV 未生成：$META_CSV"
   ROWS=$("$PYTHON_BIN" -c "import csv;print(sum(1 for _ in csv.DictReader(open('$META_CSV'))))")

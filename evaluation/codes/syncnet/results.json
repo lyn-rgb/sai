@@ -1,0 +1,513 @@
+{
+  "summary": {
+    "total_videos": 70,
+    "successful_videos": 70,
+    "failed_videos": 0,
+    "average_offset": 8.771428571428572,
+    "average_confidence": 0.8172804628099714,
+    "std_offset": 7.377904132458968,
+    "std_confidence": 0.33111347596591645,
+    "median_offset": 15.0,
+    "median_confidence": 0.7242207527160645,
+    "offset_range": [
+      0.0,
+      15.0
+    ],
+    "confidence_range": [
+      0.2860426902770996,
+      1.8006372451782227
+    ]
+  },
+  "detailed_results": [
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00001_00001_frame_audio.mp4",
+      "video_name": "batch_00001_00001_frame_audio",
+      "offset": 15,
+      "confidence": 1.1256685256958008,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00002_00002_frame_audio.mp4",
+      "video_name": "batch_00002_00002_frame_audio",
+      "offset": 15,
+      "confidence": 0.6630611419677734,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00003_00003_frame_audio.mp4",
+      "video_name": "batch_00003_00003_frame_audio",
+      "offset": 15,
+      "confidence": 0.7956361770629883,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00004_00004_frame_audio.mp4",
+      "video_name": "batch_00004_00004_frame_audio",
+      "offset": 0,
+      "confidence": 1.6041536331176758,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00005_00005_frame_audio.mp4",
+      "video_name": "batch_00005_00005_frame_audio",
+      "offset": 0,
+      "confidence": 0.5080795288085938,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00006_00006_frame_audio.mp4",
+      "video_name": "batch_00006_00006_frame_audio",
+      "offset": 0,
+      "confidence": 0.6605892181396484,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00007_00007_frame_audio.mp4",
+      "video_name": "batch_00007_00007_frame_audio",
+      "offset": 0,
+      "confidence": 0.6902580261230469,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00008_00008_frame_audio.mp4",
+      "video_name": "batch_00008_00008_frame_audio",
+      "offset": 0,
+      "confidence": 0.6508970260620117,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00009_00009_frame_audio.mp4",
+      "video_name": "batch_00009_00009_frame_audio",
+      "offset": 0,
+      "confidence": 0.7111186981201172,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00010_00010_frame_audio.mp4",
+      "video_name": "batch_00010_00010_frame_audio",
+      "offset": 0,
+      "confidence": 1.2289886474609375,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00011_00011_frame_audio.mp4",
+      "video_name": "batch_00011_00011_frame_audio",
+      "offset": 15,
+      "confidence": 1.0071382522583008,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00012_00012_frame_audio.mp4",
+      "video_name": "batch_00012_00012_frame_audio",
+      "offset": 15,
+      "confidence": 0.3774290084838867,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00013_00013_frame_audio.mp4",
+      "video_name": "batch_00013_00013_frame_audio",
+      "offset": 15,
+      "confidence": 1.8006372451782227,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00014_00014_frame_audio.mp4",
+      "video_name": "batch_00014_00014_frame_audio",
+      "offset": 0,
+      "confidence": 1.3725261688232422,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00015_00015_frame_audio.mp4",
+      "video_name": "batch_00015_00015_frame_audio",
+      "offset": 15,
+      "confidence": 1.2383270263671875,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00016_00016_frame_audio.mp4",
+      "video_name": "batch_00016_00016_frame_audio",
+      "offset": 0,
+      "confidence": 1.492842674255371,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00017_00017_frame_audio.mp4",
+      "video_name": "batch_00017_00017_frame_audio",
+      "offset": 15,
+      "confidence": 0.9949588775634766,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00018_00018_frame_audio.mp4",
+      "video_name": "batch_00018_00018_frame_audio",
+      "offset": 15,
+      "confidence": 0.5874967575073242,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00019_00019_frame_audio.mp4",
+      "video_name": "batch_00019_00019_frame_audio",
+      "offset": 0,
+      "confidence": 0.5317773818969727,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00020_00020_frame_audio.mp4",
+      "video_name": "batch_00020_00020_frame_audio",
+      "offset": 15,
+      "confidence": 0.5539112091064453,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00021_00021_frame_audio.mp4",
+      "video_name": "batch_00021_00021_frame_audio",
+      "offset": 14,
+      "confidence": 1.4154510498046875,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00022_00022_frame_audio.mp4",
+      "video_name": "batch_00022_00022_frame_audio",
+      "offset": 15,
+      "confidence": 0.6869020462036133,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00023_00023_frame_audio.mp4",
+      "video_name": "batch_00023_00023_frame_audio",
+      "offset": 15,
+      "confidence": 1.0868701934814453,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00024_00024_frame_audio.mp4",
+      "video_name": "batch_00024_00024_frame_audio",
+      "offset": 0,
+      "confidence": 0.7243289947509766,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00025_00025_frame_audio.mp4",
+      "video_name": "batch_00025_00025_frame_audio",
+      "offset": 15,
+      "confidence": 0.9173402786254883,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00026_00026_frame_audio.mp4",
+      "video_name": "batch_00026_00026_frame_audio",
+      "offset": 15,
+      "confidence": 0.7241125106811523,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00027_00027_frame_audio.mp4",
+      "video_name": "batch_00027_00027_frame_audio",
+      "offset": 15,
+      "confidence": 0.7687110900878906,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00028_00028_frame_audio.mp4",
+      "video_name": "batch_00028_00028_frame_audio",
+      "offset": 15,
+      "confidence": 0.9798645973205566,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00029_00029_frame_audio.mp4",
+      "video_name": "batch_00029_00029_frame_audio",
+      "offset": 15,
+      "confidence": 1.101755142211914,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00030_00030_frame_audio.mp4",
+      "video_name": "batch_00030_00030_frame_audio",
+      "offset": 15,
+      "confidence": 0.7449522018432617,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00031_00031_frame_audio.mp4",
+      "video_name": "batch_00031_00031_frame_audio",
+      "offset": 15,
+      "confidence": 0.7732582092285156,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00032_00032_frame_audio.mp4",
+      "video_name": "batch_00032_00032_frame_audio",
+      "offset": 0,
+      "confidence": 0.6869621276855469,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00033_00033_frame_audio.mp4",
+      "video_name": "batch_00033_00033_frame_audio",
+      "offset": 0,
+      "confidence": 0.971064567565918,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00034_00034_frame_audio.mp4",
+      "video_name": "batch_00034_00034_frame_audio",
+      "offset": 15,
+      "confidence": 1.2750778198242188,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00035_00035_frame_audio.mp4",
+      "video_name": "batch_00035_00035_frame_audio",
+      "offset": 15,
+      "confidence": 0.69488525390625,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00036_00036_frame_audio.mp4",
+      "video_name": "batch_00036_00036_frame_audio",
+      "offset": 0,
+      "confidence": 0.8678045272827148,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00037_00037_frame_audio.mp4",
+      "video_name": "batch_00037_00037_frame_audio",
+      "offset": 15,
+      "confidence": 0.4241905212402344,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00038_00038_frame_audio.mp4",
+      "video_name": "batch_00038_00038_frame_audio",
+      "offset": 15,
+      "confidence": 0.6984391212463379,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00039_00039_frame_audio.mp4",
+      "video_name": "batch_00039_00039_frame_audio",
+      "offset": 0,
+      "confidence": 1.2497568130493164,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00040_00040_frame_audio.mp4",
+      "video_name": "batch_00040_00040_frame_audio",
+      "offset": 0,
+      "confidence": 0.8909444808959961,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00041_00041_frame_audio.mp4",
+      "video_name": "batch_00041_00041_frame_audio",
+      "offset": 15,
+      "confidence": 0.4721517562866211,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00042_00042_frame_audio.mp4",
+      "video_name": "batch_00042_00042_frame_audio",
+      "offset": 0,
+      "confidence": 1.123708724975586,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00043_00043_frame_audio.mp4",
+      "video_name": "batch_00043_00043_frame_audio",
+      "offset": 15,
+      "confidence": 0.2860426902770996,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00044_00044_frame_audio.mp4",
+      "video_name": "batch_00044_00044_frame_audio",
+      "offset": 15,
+      "confidence": 0.6753854751586914,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00045_00045_frame_audio.mp4",
+      "video_name": "batch_00045_00045_frame_audio",
+      "offset": 15,
+      "confidence": 1.1955804824829102,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00046_00046_frame_audio.mp4",
+      "video_name": "batch_00046_00046_frame_audio",
+      "offset": 15,
+      "confidence": 1.1323471069335938,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00047_00047_frame_audio.mp4",
+      "video_name": "batch_00047_00047_frame_audio",
+      "offset": 15,
+      "confidence": 0.9581937789916992,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00048_00048_frame_audio.mp4",
+      "video_name": "batch_00048_00048_frame_audio",
+      "offset": 15,
+      "confidence": 0.47160911560058594,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00049_00049_frame_audio.mp4",
+      "video_name": "batch_00049_00049_frame_audio",
+      "offset": 15,
+      "confidence": 0.4824819564819336,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00050_00050_frame_audio.mp4",
+      "video_name": "batch_00050_00050_frame_audio",
+      "offset": 15,
+      "confidence": 1.1224641799926758,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00051_00051_frame_audio.mp4",
+      "video_name": "batch_00051_00051_frame_audio",
+      "offset": 15,
+      "confidence": 0.3437213897705078,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00052_00052_frame_audio.mp4",
+      "video_name": "batch_00052_00052_frame_audio",
+      "offset": 15,
+      "confidence": 0.4425230026245117,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00053_00053_frame_audio.mp4",
+      "video_name": "batch_00053_00053_frame_audio",
+      "offset": 15,
+      "confidence": 1.1769838333129883,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00054_00054_frame_audio.mp4",
+      "video_name": "batch_00054_00054_frame_audio",
+      "offset": 15,
+      "confidence": 0.9568767547607422,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00055_00055_frame_audio.mp4",
+      "video_name": "batch_00055_00055_frame_audio",
+      "offset": 0,
+      "confidence": 1.0025634765625,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00056_00056_frame_audio.mp4",
+      "video_name": "batch_00056_00056_frame_audio",
+      "offset": 0,
+      "confidence": 0.7769479751586914,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00057_00057_frame_audio.mp4",
+      "video_name": "batch_00057_00057_frame_audio",
+      "offset": 15,
+      "confidence": 0.6941766738891602,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00058_00058_frame_audio.mp4",
+      "video_name": "batch_00058_00058_frame_audio",
+      "offset": 0,
+      "confidence": 0.6303863525390625,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00059_00059_frame_audio.mp4",
+      "video_name": "batch_00059_00059_frame_audio",
+      "offset": 15,
+      "confidence": 0.4163217544555664,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00060_00060_frame_audio.mp4",
+      "video_name": "batch_00060_00060_frame_audio",
+      "offset": 0,
+      "confidence": 0.5640487670898438,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00061_00061_frame_audio.mp4",
+      "video_name": "batch_00061_00061_frame_audio",
+      "offset": 0,
+      "confidence": 0.46282005310058594,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00062_00062_frame_audio.mp4",
+      "video_name": "batch_00062_00062_frame_audio",
+      "offset": 0,
+      "confidence": 0.48169898986816406,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00063_00063_frame_audio.mp4",
+      "video_name": "batch_00063_00063_frame_audio",
+      "offset": 0,
+      "confidence": 1.1561508178710938,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00064_00064_frame_audio.mp4",
+      "video_name": "batch_00064_00064_frame_audio",
+      "offset": 0,
+      "confidence": 0.3421955108642578,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00065_00065_frame_audio.mp4",
+      "video_name": "batch_00065_00065_frame_audio",
+      "offset": 0,
+      "confidence": 0.5869836807250977,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00066_00066_frame_audio.mp4",
+      "video_name": "batch_00066_00066_frame_audio",
+      "offset": 15,
+      "confidence": 0.44870758056640625,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00067_00067_frame_audio.mp4",
+      "video_name": "batch_00067_00067_frame_audio",
+      "offset": 15,
+      "confidence": 0.4238100051879883,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00068_00068_frame_audio.mp4",
+      "video_name": "batch_00068_00068_frame_audio",
+      "offset": 0,
+      "confidence": 0.7123794555664062,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00069_00069_frame_audio.mp4",
+      "video_name": "batch_00069_00069_frame_audio",
+      "offset": 0,
+      "confidence": 0.4644804000854492,
+      "status": "success"
+    },
+    {
+      "video_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/HunyuanCustom/out_one_file/batch_00070_00070_frame_audio.mp4",
+      "video_name": "batch_00070_00070_frame_audio",
+      "offset": 0,
+      "confidence": 0.9277238845825195,
+      "status": "success"
+    }
+  ]
+}

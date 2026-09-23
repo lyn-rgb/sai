@@ -1,0 +1,36 @@
+# NOTE, .gitignore 不支持行尾注释：注释必须单独成行，否则整行会被当成模式。
+
+# --- 数据与产物：体积大，且样例/测试集含真实人物的肖像与声音（生物特征数据），默认不上传。
+# --- 若确认有权公开，删掉对应行即可。
+example_data/
+evaluation/testdata/
+evaluation/results/
+outputs/
+logs/
+ckpts/
+weights/
+
+# --- 第三方代码树：各有自己的许可证，内联进本仓库可能与许可条款冲突，建议只留引用/链接
+comparsion/
+
+# --- 训练/数据处理产物
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.bin
+*.mp4
+*.wav
+*.zip
+dataset/reformat_failed_lst*.txt
+
+# --- 工具链 / 编辑器
+.DS_Store
+.ipynb_checkpoints/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/

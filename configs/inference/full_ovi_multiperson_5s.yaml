@@ -1,0 +1,44 @@
+ckpt_dir: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/ckpts
+ckpt_name: Ovi/model.safetensors
+lora_path: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/copy-Lab1/ilm/sai/logs/multiperson/ckpt/step-2000.safetensors
+self_lora: true
+load_lora: true
+lora_strict: false
+zero_lora_layers: false
+use_reference_tokens: true
+use_ip_embeddings: true
+init_ip_embedding_layers: true
+face_embedder_ckpt_dir: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/ckpts/InsightFace
+face_ip_emb_dim: 512
+audio_embedder_ckpt_dir: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/weights/naturalspeech3_facodec
+audio_ip_emb_dim: 256
+# multi-person reference conditioning, must match the fine-tuned checkpoint
+n_refs: 2
+use_ref_av_fusion: true
+fusion_lora_rank: 128
+# reference audio samples fed to the model, must equal ref_audio_frames * 16000 / 24 at train time
+# (24 frames = 16000 = 1s, 48 frames = 32000 = 2s, 96 frames = 64000 = 4s)
+ref_audio_samples: 16000
+output_dir: ./outputs/full_ovi_multiperson_5s
+sample_steps: 50
+solver_name: unipc
+shift: 5.0
+duration_seconds: 5.0
+fps: 24
+sp_size: 1
+audio_guidance_scale: 3.0
+video_guidance_scale: 4.0
+mode: "id2v"
+fp8: false
+cpu_offload: false
+seed: 102
+crop_face: true
+# NOTE, with two reference persons the negative prompt should not discourage two people:
+# the `two people, two persons` entries of the single-person config are intentionally dropped here.
+video_negative_prompt: "jitter, bad hands, blur, distortion, aerial view, overexposed, low quality, deformation, a poor composition, bad hands, bad teeth, bad eyes, bad limbs, blurring, text, subtitles, static, picture, black border"
+audio_negative_prompt: "robotic, muffled, echo, distorted"
+video_frame_height_width: [576, 992]
+text_prompt: ./evaluation/testdata_multiperson/generated_prompts/multiperson_prompts.csv
+slg_layer: 11
+each_example_n_times: 1
+skip_existing_outputs: false

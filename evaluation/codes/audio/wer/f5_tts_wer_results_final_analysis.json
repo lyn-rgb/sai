@@ -1,0 +1,21 @@
+{
+  "analysis_summary": {
+    "overall_wer": 0.053117782909930716,
+    "overall_wer_percentage": 5.311778290993072,
+    "file_level_avg_wer": 0.05334776334776335,
+    "file_level_avg_wer_percentage": 5.334776334776335,
+    "normal_files_count": 55,
+    "abnormal_files_count": 2,
+    "abnormal_file_ids": [
+      "00016",
+      "00003"
+    ],
+    "total_words": 433,
+    "total_errors": 23,
+    "error_breakdown": {
+      "substitutions": 8,
+      "deletions": 3,
+      "insertions": 12
+    }
+  }
+}

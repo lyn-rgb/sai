@@ -1,0 +1,483 @@
+TTS 音色克隆 WER 评估结果
+================================================================================
+评估时间: 2025-11-30 07:56:22
+语言: en
+总样本数: 57
+有效样本数: 57
+
+总体统计:
+----------------------------------------
+平均 WER: 0.3892 (38.92%)
+WER 标准差: 0.3784
+最小 WER: 0.0000
+最大 WER: 1.8333
+
+WER 分布:
+  0-10%: 7 个样本 (12.3%)
+  10-20%: 14 个样本 (24.6%)
+  20-30%: 10 个样本 (17.5%)
+  30-50%: 11 个样本 (19.3%)
+  50-100%: 9 个样本 (15.8%)
+
+每个样本的详细结果:
+================================================================================
+样本 1:
+  音频文件: 00001_output.wav
+  WER: 0.1429
+  原始 GT: Simple pleasures are the last healthy refuge.
+  原始识别: TXT. SIMPLE PLEASURES ARE THE LAST HEALTHY REFUGE.
+  规范化 GT: simple pleasures are the last healthy refuge
+  规范化识别: txt simple pleasures are the last healthy refuge
+--------------------------------------------------------------------------------
+样本 2:
+  音频文件: 00002_output.wav
+  WER: 0.3333
+  原始 GT: The little things? The little moments? They aren't little.
+  原始识别: Asser. Tix. Ext. The little things, the little moments, they aren't little.
+  规范化 GT: the little things the little moments they arent little
+  规范化识别: asser tix ext the little things the little moments they arent little
+--------------------------------------------------------------------------------
+样本 3:
+  音频文件: 00003_output.wav
+  WER: 0.1429
+  原始 GT: Make today so awesome that yesterday gets jealous.
+  原始识别: Exed. Make today so awesome that yesterday gets jealous.
+  规范化 GT: make today awesome that yesterday gets jealous
+  规范化识别: exed make today awesome that yesterday gets jealous
+--------------------------------------------------------------------------------
+样本 4:
+  音频文件: 00004_output.wav
+  WER: 0.2857
+  原始 GT: The body achieves what the mind believes.
+  原始识别: Oh, yes. Text. The body achieves what the mind believes.
+  规范化 GT: the body achieves what the mind believes
+  规范化识别: oh text the body achieves what the mind believes
+--------------------------------------------------------------------------------
+样本 5:
+  音频文件: 00005_output.wav
+  WER: 0.8750
+  原始 GT: Color is my day-long obsession, joy, and torment.
+  原始识别: Audio to ask her, TXT, Color Is My Day, Long Obsession, Joy, and Torment.
+  规范化 GT: color is my day-long obsession joy and torment
+  规范化识别: audio to ask her txt color is my day long obsession joy and torment
+--------------------------------------------------------------------------------
+样本 6:
+  音频文件: 00006_output.wav
+  WER: 0.0000
+  原始 GT: Good friends are like stars, you don't always see them but you know they're there.
+  原始识别: Good friends are like stars, you don't always see them but you know they're there.
+  规范化 GT: good friends are stars you dont always see them but theyre there
+  规范化识别: good friends are stars you dont always see them but theyre there
+--------------------------------------------------------------------------------
+样本 7:
+  音频文件: 00007_output.wav
+  WER: 0.2500
+  原始 GT: Your potential is endless.
+  原始识别: TXT, your potential is endless.
+  规范化 GT: your potential is endless
+  规范化识别: txt your potential is endless
+--------------------------------------------------------------------------------
+样本 8:
+  音频文件: 00008_output.wav
+  WER: 0.0000
+  原始 GT: Creativity takes courage.
+  原始识别: Creativity takes courage.
+  规范化 GT: creativity takes courage
+  规范化识别: creativity takes courage
+--------------------------------------------------------------------------------
+样本 9:
+  音频文件: 00009_output.wav
+  WER: 0.1429
+  原始 GT: Life is better with a little rhythm.
+  原始识别: Text, life is better with a little rhythm.
+  规范化 GT: life is better with a little rhythm
+  规范化识别: text life is better with a little rhythm
+--------------------------------------------------------------------------------
+样本 10:
+  音频文件: 00010_output.wav
+  WER: 0.1667
+  原始 GT: Nature always has the best answers.
+  原始识别: TXT. Nature always has the best answers.
+  规范化 GT: nature always has the best answers
+  规范化识别: txt nature always has the best answers
+--------------------------------------------------------------------------------
+样本 11:
+  音频文件: 00011_output.wav
+  WER: 0.2857
+  原始 GT: Reading gives us someplace to go when we have to stay where we are.
+  原始识别: AudioDAS, text. Reading gives us some place to go when we have to stay where we are.
+  规范化 GT: reading gives us someplace to go when we have to stay where we are
+  规范化识别: audiodas text reading gives us some place to go when we have to stay where we are
+--------------------------------------------------------------------------------
+样本 12:
+  音频文件: 00012_output.wav
+  WER: 0.2857
+  原始 GT: You're braver than you believe, stronger than you seem, and smarter than you think.
+  原始识别: ProcessedASR, Zotawadio, asks, text, you're braver than you believe, stronger than you seem, and smarter than you think.
+  规范化 GT: youre braver than you believe stronger than you seem and smarter than you think
+  规范化识别: processedasr zotawadio asks text youre braver than you believe stronger than you seem and smarter than you think
+--------------------------------------------------------------------------------
+样本 13:
+  音频文件: 00013_output.wav
+  WER: 0.3333
+  原始 GT: You are capable of amazing things.
+  原始识别: Text, you're capable of amazing things.
+  规范化 GT: you are capable of amazing things
+  规范化识别: text youre capable of amazing things
+--------------------------------------------------------------------------------
+样本 14:
+  音频文件: 00014_output.wav
+  WER: 0.2500
+  原始 GT: Beauty is everywhere you choose to see it.
+  原始识别: Audio SRT-XBV is everywhere you choose to see it.
+  规范化 GT: beauty is everywhere you choose to see it
+  规范化识别: audio srt-xbv is everywhere you choose to see it
+--------------------------------------------------------------------------------
+样本 15:
+  音频文件: 00015_output.wav
+  WER: 1.0000
+  原始 GT: Nothing beats the aroma of homemade bread!
+  原始识别: But xx thousand on our state
+  规范化 GT: nothing beats the aroma of homemade bread
+  规范化识别: but xx thousand on our state
+--------------------------------------------------------------------------------
+样本 16:
+  音频文件: 00016_output.wav
+  WER: 0.5000
+  原始 GT: Every artist was first an amateur.
+  原始识别: Ass. Text every artist was first in amateur.
+  规范化 GT: every artist was first an amateur
+  规范化识别: ass text every artist was first in amateur
+--------------------------------------------------------------------------------
+样本 17:
+  音频文件: 00017_output.wav
+  WER: 0.5000
+  原始 GT: Laughter is the sound of the soul dancing.
+  原始识别: Audio ass. TXT. Lauder is the sound of the soul dancing.
+  规范化 GT: laughter is the sound of the soul dancing
+  规范化识别: audio ass txt lauder is the sound of the soul dancing
+--------------------------------------------------------------------------------
+样本 18:
+  音频文件: 00018_output.wav
+  WER: 0.7273
+  原始 GT: Art washes away from the soul the dust of everyday life.
+  原始识别: I do I do you Astor teaks t art washes away from the soul the dust of everyday life
+  规范化 GT: art washes away from the soul the dust of everyday life
+  规范化识别: i do i do you astor teaks t art washes away from the soul the dust of everyday life
+--------------------------------------------------------------------------------
+样本 19:
+  音频文件: 00019_output.wav
+  WER: 0.2222
+  原始 GT: Good times and good friends - what could be better?
+  原始识别: Ask text. Good times and good friends, what could be better?
+  规范化 GT: good times and good friends - what could be better
+  规范化识别: ask text good times and good friends what could be better
+--------------------------------------------------------------------------------
+样本 20:
+  音频文件: 00020_output.wav
+  WER: 0.0000
+  原始 GT: The more you read, the more things you will know.
+  原始识别: The more you read, the more things you will know
+  规范化 GT: the more you read the more things you will know
+  规范化识别: the more you read the more things you will know
+--------------------------------------------------------------------------------
+样本 21:
+  音频文件: 00021_output.wav
+  WER: 0.0000
+  原始 GT: The best is yet to come.
+  原始识别: The best is yet to come.
+  规范化 GT: the best is yet to come
+  规范化识别: the best is yet to come
+--------------------------------------------------------------------------------
+样本 22:
+  音频文件: 00022_output.wav
+  WER: 0.1429
+  原始 GT: Embrace the glorious mess that you are.
+  原始识别: T-Exed, embrace the glorious mess that you are.
+  规范化 GT: embrace the glorious mess that you are
+  规范化识别: t-exed embrace the glorious mess that you are
+--------------------------------------------------------------------------------
+样本 23:
+  音频文件: 00023_output.wav
+  WER: 0.8462
+  原始 GT: The future belongs to those who believe in the beauty of their dreams.
+  原始识别: Process 8 ASR Zazern Tours in 3 audio to ASR text. The future belongs to those who believe in the beauty of their dreams.
+  规范化 GT: the future belongs to those who believe in the beauty of their dreams
+  规范化识别: process 8 asr zazern tours in 3 audio to asr text the future belongs to those who believe in the beauty of their dreams
+--------------------------------------------------------------------------------
+样本 24:
+  音频文件: 00024_output.wav
+  WER: 0.4000
+  原始 GT: Laughter is an instant vacation.
+  原始识别: TXT, Lauder is an instant vacation.
+  规范化 GT: laughter is an instant vacation
+  规范化识别: txt lauder is an instant vacation
+--------------------------------------------------------------------------------
+样本 25:
+  音频文件: 00025_output.wav
+  WER: 0.0000
+  原始 GT: A good book is like a good friend.
+  原始识别: A good book is like a good friend.
+  规范化 GT: a good book is a good friend
+  规范化识别: a good book is a good friend
+--------------------------------------------------------------------------------
+样本 26:
+  音频文件: 00026_output.wav
+  WER: 0.3750
+  原始 GT: Cooking is an act of love and creativity.
+  原始识别: Audiot asked, Tx'd, cooking is an act of love and creativity.
+  规范化 GT: cooking is an act of love and creativity
+  规范化识别: audiot asked txd cooking is an act of love and creativity
+--------------------------------------------------------------------------------
+样本 27:
+  音频文件: 00027_output.wav
+  WER: 0.3333
+  原始 GT: Music speaks what words cannot express.
+  原始识别: TXT. Music speaks what words cannot express, best.
+  规范化 GT: music speaks what words cannot express
+  规范化识别: txt music speaks what words cannot express best
+--------------------------------------------------------------------------------
+样本 28:
+  音频文件: 00028_output.wav
+  WER: 0.1667
+  原始 GT: Feel the rhythm, feel the rhyme!
+  原始识别: Text. Feel the rhythm, feel the rhyme!
+  规范化 GT: feel the rhythm feel the rhyme
+  规范化识别: text feel the rhythm feel the rhyme
+--------------------------------------------------------------------------------
+样本 29:
+  音频文件: 00029_output.wav
+  WER: 0.4000
+  原始 GT: Learning never exhausts the mind.
+  原始识别: Tx-ed thing. Learning never exhausts the mind.
+  规范化 GT: learning never exhausts the mind
+  规范化识别: tx-ed thing learning never exhausts the mind
+--------------------------------------------------------------------------------
+样本 30:
+  音频文件: 00030_output.wav
+  WER: 0.2000
+  原始 GT: Fresh air and happy thoughts!
+  原始识别: T-ext, fresh air and happy thoughts.
+  规范化 GT: fresh air and happy thoughts
+  规范化识别: t-ext fresh air and happy thoughts
+--------------------------------------------------------------------------------
+样本 31:
+  音频文件: 00031_output.wav
+  WER: 0.0000
+  原始 GT: Movement is a medicine for creating change.
+  原始识别: Movement is a medicine for creating change.
+  规范化 GT: movement is a medicine for creating change
+  规范化识别: movement is a medicine for creating change
+--------------------------------------------------------------------------------
+样本 32:
+  音频文件: 00032_output.wav
+  WER: 1.8333
+  原始 GT: The thrill of competition is unbeatable!
+  原始识别: I don't have to read it. Throw out that comment text.
+  规范化 GT: the thrill of competition is unbeatable
+  规范化识别: i dont have to read it throw out that comment text
+--------------------------------------------------------------------------------
+样本 33:
+  音频文件: 00033_output.wav
+  WER: 0.2000
+  原始 GT: Progress begins with meaningful conversations.
+  原始识别: EXT. Progress begins with meaningful conversations.
+  规范化 GT: progress begins with meaningful conversations
+  规范化识别: ext progress begins with meaningful conversations
+--------------------------------------------------------------------------------
+样本 34:
+  音频文件: 00034_output.wav
+  WER: 0.1667
+  原始 GT: Music is the shorthand of emotion.
+  原始识别: Peksta. Music is the shorthand of emotion.
+  规范化 GT: music is the shorthand of emotion
+  规范化识别: peksta music is the shorthand of emotion
+--------------------------------------------------------------------------------
+样本 35:
+  音频文件: 00035_output.wav
+  WER: 0.1429
+  原始 GT: Happiness is a journey, not a destination.
+  原始识别: Text. Happiness is a journey, not a destination.
+  规范化 GT: happiness is a journey not a destination
+  规范化识别: text happiness is a journey not a destination
+--------------------------------------------------------------------------------
+样本 36:
+  音频文件: 00036_output.wav
+  WER: 1.0000
+  原始 GT: Today's accomplishments were yesterday's impossibilities.
+  原始识别: Audio to ask, today's accomplished, where yesterday's impossibilities?
+  规范化 GT: todays accomplishments were yesterdays impossibilities
+  规范化识别: audio to ask todays accomplished where yesterdays impossibilities
+--------------------------------------------------------------------------------
+样本 37:
+  音频文件: 00037_output.wav
+  WER: 0.2500
+  原始 GT: In every walk with nature, one receives far more than he seeks.
+  原始识别: Audio Dasser, TX, in every walk with nature, one receives far more than he seeks.
+  规范化 GT: in every walk with nature one receives far more than he seeks
+  规范化识别: audio dasser tx in every walk with nature one receives far more than he seeks
+--------------------------------------------------------------------------------
+样本 38:
+  音频文件: 00038_output.wav
+  WER: 0.1429
+  原始 GT: Together is a wonderful place to be.
+  原始识别: Text. Together is a wonderful place to be.
+  规范化 GT: together is a wonderful place to be
+  规范化识别: text together is a wonderful place to be
+--------------------------------------------------------------------------------
+样本 39:
+  音频文件: 00039_output.wav
+  WER: 1.4000
+  原始 GT: Every sunrise brings new opportunities.
+  原始识别: Avzah San, not Azah San, Ev Kishuni.
+  规范化 GT: every sunrise brings new opportunities
+  规范化识别: avzah san not azah san ev kishuni
+--------------------------------------------------------------------------------
+样本 40:
+  音频文件: 00040_output.wav
+  WER: 0.5556
+  原始 GT: Curiosity is the wick in the candle of learning.
+  原始识别: Audio to ask X. Curiosity is the wick and the candle of learning.
+  规范化 GT: curiosity is the wick in the candle of learning
+  规范化识别: audio to ask x curiosity is the wick and the candle of learning
+--------------------------------------------------------------------------------
+样本 41:
+  音频文件: 00041_output.wav
+  WER: 0.1429
+  原始 GT: Game on! Let's give it our all!
+  原始识别: Text, game on. Let's give it our all.
+  规范化 GT: game on lets give it our all
+  规范化识别: text game on lets give it our all
+--------------------------------------------------------------------------------
+样本 42:
+  音频文件: 00042_output.wav
+  WER: 0.1429
+  原始 GT: What a beautiful day to be alive!
+  原始识别: TXT, what a beautiful day to be alive.
+  规范化 GT: what a beautiful day to be alive
+  规范化识别: txt what a beautiful day to be alive
+--------------------------------------------------------------------------------
+样本 43:
+  音频文件: 00043_output.wav
+  WER: 0.1667
+  原始 GT: Energy and persistence conquer all things.
+  原始识别: TXT, energy and persistence conquer all things.
+  规范化 GT: energy and persistence conquer all things
+  规范化识别: txt energy and persistence conquer all things
+--------------------------------------------------------------------------------
+样本 44:
+  音频文件: 00044_output.wav
+  WER: 0.2500
+  原始 GT: Dance is the hidden language of the soul.
+  原始识别: Pext dances the hidden language of the soul.
+  规范化 GT: dance is the hidden language of the soul
+  规范化识别: pext dances the hidden language of the soul
+--------------------------------------------------------------------------------
+样本 45:
+  音频文件: 00045_output.wav
+  WER: 1.3333
+  原始 GT: The ocean's rhythm soothes my soul.
+  原始识别: Well, first of all, it has to do with
+  规范化 GT: the oceans rhythm soothes my soul
+  规范化识别: first of all it has to do with
+--------------------------------------------------------------------------------
+样本 46:
+  音频文件: 00046_output.wav
+  WER: 0.5000
+  原始 GT: Coffee first, adulting second.
+  原始识别: Text. Call first adulting second.
+  规范化 GT: coffee first adulting second
+  规范化识别: text call first adulting second
+--------------------------------------------------------------------------------
+样本 47:
+  音频文件: 00047_output.wav
+  WER: 0.1429
+  原始 GT: Every page turned is a new adventure.
+  原始识别: Tx'd. Every page turned is a new adventure.
+  规范化 GT: every page turned is a new adventure
+  规范化识别: txd every page turned is a new adventure
+--------------------------------------------------------------------------------
+样本 48:
+  音频文件: 00048_output.wav
+  WER: 1.0000
+  原始 GT: The earth has music for those who listen.
+  原始识别: How's it for free though? That's X'd.
+  规范化 GT: the earth has music for those who listen
+  规范化识别: hows it for free though thats xd
+--------------------------------------------------------------------------------
+样本 49:
+  音频文件: 00049_output.wav
+  WER: 0.6667
+  原始 GT: Knowledge is a treasure that follows its owner everywhere.
+  原始识别: Lowes, 4-9, audio to ask. Text, knowledge is a treasure that follows its owner everywhere.
+  规范化 GT: knowledge is a treasure that follows its owner everywhere
+  规范化识别: lowes 4-9 audio to ask text knowledge is a treasure that follows its owner everywhere
+--------------------------------------------------------------------------------
+样本 50:
+  音频文件: 00050_output.wav
+  WER: 0.1667
+  原始 GT: Life is better when you're laughing.
+  原始识别: TXT, life is better when you're laughing.
+  规范化 GT: life is better when youre laughing
+  规范化识别: txt life is better when youre laughing
+--------------------------------------------------------------------------------
+样本 51:
+  音频文件: 00051_output.wav
+  WER: 0.4000
+  原始 GT: Kind words can be short and easy to speak, but their echoes are truly endless.
+  原始识别: ASRkurt Uazudalz and Azunfath Uaziyod. SRx. Kind words can be short and easy to speak, but their echoes are truly endless.
+  规范化 GT: kind words can be short and easy to speak but their echoes are truly endless
+  规范化识别: asrkurt uazudalz and azunfath uaziyod srx kind words can be short and easy to speak but their echoes are truly endless
+--------------------------------------------------------------------------------
+样本 52:
+  音频文件: 00052_output.wav
+  WER: 0.3333
+  原始 GT: Great ideas deserve to be shared with the world.
+  原始识别: Audio, ass. Text, great ideas deserve to be shared with the world.
+  规范化 GT: great ideas deserve to be shared with the world
+  规范化识别: audio ass text great ideas deserve to be shared with the world
+--------------------------------------------------------------------------------
+样本 53:
+  音频文件: 00053_output.wav
+  WER: 0.0000
+  原始 GT: Books are a uniquely portable magic.
+  原始识别: books are a uniquely portable magic,
+  规范化 GT: books are a uniquely portable magic
+  规范化识别: books are a uniquely portable magic
+--------------------------------------------------------------------------------
+样本 54:
+  音频文件: 00054_output.wav
+  WER: 0.3333
+  原始 GT: The best conversations happen over coffee.
+  原始识别: Audio assets. The best conversations happen over coffee.
+  规范化 GT: the best conversations happen over coffee
+  规范化识别: audio assets the best conversations happen over coffee
+--------------------------------------------------------------------------------
+样本 55:
+  音频文件: 00055_output.wav
+  WER: 0.3333
+  原始 GT: Every wall tells a story waiting to be discovered.
+  原始识别: Audio as text. Every wall tells a story waiting to be discovered.
+  规范化 GT: every wall tells a story waiting to be discovered
+  规范化识别: audio as text every wall tells a story waiting to be discovered
+--------------------------------------------------------------------------------
+样本 56:
+  音频文件: 00056_output.wav
+  WER: 0.3750
+  原始 GT: The sea holds secrets only patience can reveal.
+  原始识别: Sir, ext. The sea holds secrets only patients can reveal.
+  规范化 GT: the sea holds secrets only patience can reveal
+  规范化识别: sir ext the sea holds secrets only patients can reveal
+--------------------------------------------------------------------------------
+样本 57:
+  音频文件: 00057_output.wav
+  WER: 0.9000
+  原始 GT: Nature's beauty is a gift that renews itself each day.
+  原始识别: Holler than five or seven audio to ask ticks. Nature's beauty is a gift that renews itself each day.
+  规范化 GT: natures beauty is a gift that renews itself each day
+  规范化识别: holler than five or seven audio to ask ticks natures beauty is a gift that renews itself each day
+--------------------------------------------------------------------------------
+
+总结:
+----------------------------------------
+WER 30-40%: 较差 - TTS 系统需要改进

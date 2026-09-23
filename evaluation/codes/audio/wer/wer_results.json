@@ -1,0 +1,937 @@
+{
+  "config": {
+    "gt_dir": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/benchmark1/processed/gt_se",
+    "audio_dir": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1",
+    "model_path": "large-v3",
+    "lang": "en",
+    "total_files": 57,
+    "processing_time": 67.81765580177307
+  },
+  "results": [
+    {
+      "base_name": "00021",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00021_output.wav",
+      "reference": "The best is yet to come.",
+      "hypothesis": "The best is yet to come.",
+      "asr_time": 1.0401184558868408,
+      "wer": 0.0,
+      "wer_details": {
+        "wer": 0.0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "hits": 6,
+        "total_words": 6
+      }
+    },
+    {
+      "base_name": "00039",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00039_output.wav",
+      "reference": "Every sunrise brings new opportunities.",
+      "hypothesis": "Avzah San, not Azah San, Ev Kishuni.",
+      "asr_time": 0.7685699462890625,
+      "wer": 1.4,
+      "wer_details": {
+        "wer": 1.4,
+        "substitutions": 5,
+        "deletions": 0,
+        "insertions": 2,
+        "hits": 0,
+        "total_words": 5
+      }
+    },
+    {
+      "base_name": "00015",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00015_output.wav",
+      "reference": "Nothing beats the aroma of homemade bread!",
+      "hypothesis": "But xx has no nice texture",
+      "asr_time": 1.8705484867095947,
+      "wer": 1.0,
+      "wer_details": {
+        "wer": 1.0,
+        "substitutions": 6,
+        "deletions": 1,
+        "insertions": 0,
+        "hits": 0,
+        "total_words": 7
+      }
+    },
+    {
+      "base_name": "00026",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00026_output.wav",
+      "reference": "Cooking is an act of love and creativity.",
+      "hypothesis": "Audiot asked, Tx'd, cooking is an act of love and creativity.",
+      "asr_time": 0.7785158157348633,
+      "wer": 0.5,
+      "wer_details": {
+        "wer": 0.5,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 3,
+        "hits": 7,
+        "total_words": 8
+      }
+    },
+    {
+      "base_name": "00045",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00045_output.wav",
+      "reference": "The ocean's rhythm soothes my soul.",
+      "hypothesis": "Well, first of all, it has to do with",
+      "asr_time": 0.6405444145202637,
+      "wer": 1.5,
+      "wer_details": {
+        "wer": 1.5,
+        "substitutions": 6,
+        "deletions": 0,
+        "insertions": 3,
+        "hits": 0,
+        "total_words": 6
+      }
+    },
+    {
+      "base_name": "00056",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00056_output.wav",
+      "reference": "The sea holds secrets only patience can reveal.",
+      "hypothesis": "Sir, the sea holds secrets only patients can reveal.",
+      "asr_time": 0.660076379776001,
+      "wer": 0.375,
+      "wer_details": {
+        "wer": 0.375,
+        "substitutions": 2,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 6,
+        "total_words": 8
+      }
+    },
+    {
+      "base_name": "00030",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00030_output.wav",
+      "reference": "Fresh air and happy thoughts!",
+      "hypothesis": "T-ext, fresh air and happy thoughts.",
+      "asr_time": 0.6276774406433105,
+      "wer": 0.6,
+      "wer_details": {
+        "wer": 0.6,
+        "substitutions": 2,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 3,
+        "total_words": 5
+      }
+    },
+    {
+      "base_name": "00037",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00037_output.wav",
+      "reference": "In every walk with nature, one receives far more than he seeks.",
+      "hypothesis": "Audio Dasser, TX, in every walk with nature, one receives far more than he seeks.",
+      "asr_time": 0.8922772407531738,
+      "wer": 0.3333333333333333,
+      "wer_details": {
+        "wer": 0.3333333333333333,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 3,
+        "hits": 11,
+        "total_words": 12
+      }
+    },
+    {
+      "base_name": "00057",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00057_output.wav",
+      "reference": "Nature's beauty is a gift that renews itself each day.",
+      "hypothesis": "Holler in 507 audio to ask, Tix, nature's beauty is a gift that renews itself each day.",
+      "asr_time": 1.1013903617858887,
+      "wer": 0.8,
+      "wer_details": {
+        "wer": 0.8,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 7,
+        "hits": 9,
+        "total_words": 10
+      }
+    },
+    {
+      "base_name": "00034",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00034_output.wav",
+      "reference": "Music is the shorthand of emotion.",
+      "hypothesis": "Peksta. Music is the shorthand of emotion.",
+      "asr_time": 0.701547384262085,
+      "wer": 0.16666666666666666,
+      "wer_details": {
+        "wer": 0.16666666666666666,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 6,
+        "total_words": 6
+      }
+    },
+    {
+      "base_name": "00027",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00027_output.wav",
+      "reference": "Music speaks what words cannot express.",
+      "hypothesis": "TXT, music speaks what words cannot express,",
+      "asr_time": 0.5584142208099365,
+      "wer": 0.5,
+      "wer_details": {
+        "wer": 0.5,
+        "substitutions": 2,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 4,
+        "total_words": 6
+      }
+    },
+    {
+      "base_name": "00010",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00010_output.wav",
+      "reference": "Nature always has the best answers.",
+      "hypothesis": "T-ext. Nature always has the best answers.",
+      "asr_time": 0.7220165729522705,
+      "wer": 0.16666666666666666,
+      "wer_details": {
+        "wer": 0.16666666666666666,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 6,
+        "total_words": 6
+      }
+    },
+    {
+      "base_name": "00032",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00032_output.wav",
+      "reference": "The thrill of competition is unbeatable!",
+      "hypothesis": "I don't have to read it. Throw out that comment text.",
+      "asr_time": 0.7718806266784668,
+      "wer": 1.8333333333333333,
+      "wer_details": {
+        "wer": 1.8333333333333333,
+        "substitutions": 6,
+        "deletions": 0,
+        "insertions": 5,
+        "hits": 0,
+        "total_words": 6
+      }
+    },
+    {
+      "base_name": "00018",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00018_output.wav",
+      "reference": "Art washes away from the soul the dust of everyday life.",
+      "hypothesis": "I want you Astor teaks t art washes away from the soul the dust of everyday life",
+      "asr_time": 0.9165923595428467,
+      "wer": 0.7272727272727273,
+      "wer_details": {
+        "wer": 0.7272727272727273,
+        "substitutions": 2,
+        "deletions": 0,
+        "insertions": 6,
+        "hits": 9,
+        "total_words": 11
+      }
+    },
+    {
+      "base_name": "00019",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00019_output.wav",
+      "reference": "Good times and good friends - what could be better?",
+      "hypothesis": "Ask text. Good times and good friends, what could be better?",
+      "asr_time": 0.6342289447784424,
+      "wer": 0.4,
+      "wer_details": {
+        "wer": 0.4,
+        "substitutions": 1,
+        "deletions": 1,
+        "insertions": 2,
+        "hits": 8,
+        "total_words": 10
+      }
+    },
+    {
+      "base_name": "00017",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00017_output.wav",
+      "reference": "Laughter is the sound of the soul dancing.",
+      "hypothesis": "Audio ass. TXT. Lauder is the sound of the soul dancing.",
+      "asr_time": 0.8456258773803711,
+      "wer": 0.5,
+      "wer_details": {
+        "wer": 0.5,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 3,
+        "hits": 7,
+        "total_words": 8
+      }
+    },
+    {
+      "base_name": "00029",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00029_output.wav",
+      "reference": "Learning never exhausts the mind.",
+      "hypothesis": "Tx-ed thing. Learning never exhausts the mind.",
+      "asr_time": 0.783804178237915,
+      "wer": 0.4,
+      "wer_details": {
+        "wer": 0.4,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 2,
+        "hits": 5,
+        "total_words": 5
+      }
+    },
+    {
+      "base_name": "00048",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00048_output.wav",
+      "reference": "The earth has music for those who listen.",
+      "hypothesis": "How is it for free though? It has X'd.",
+      "asr_time": 0.6604921817779541,
+      "wer": 1.125,
+      "wer_details": {
+        "wer": 1.125,
+        "substitutions": 8,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 0,
+        "total_words": 8
+      }
+    },
+    {
+      "base_name": "00011",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00011_output.wav",
+      "reference": "Reading gives us someplace to go when we have to stay where we are.",
+      "hypothesis": "AudioDAS, text. Reading gives us someplace to go when we have to stay where we are.",
+      "asr_time": 0.9706242084503174,
+      "wer": 0.14285714285714285,
+      "wer_details": {
+        "wer": 0.14285714285714285,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 2,
+        "hits": 14,
+        "total_words": 14
+      }
+    },
+    {
+      "base_name": "00051",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00051_output.wav",
+      "reference": "Kind words can be short and easy to speak, but their echoes are truly endless.",
+      "hypothesis": "ASRkurt Uazudalz and Azunfayliwadiyod, SRx. Kind words can be short and easy to speak, but their echoes are truly endless.",
+      "asr_time": 1.5760836601257324,
+      "wer": 0.3333333333333333,
+      "wer_details": {
+        "wer": 0.3333333333333333,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 5,
+        "hits": 15,
+        "total_words": 15
+      }
+    },
+    {
+      "base_name": "00016",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00016_output.wav",
+      "reference": "Every artist was first an amateur.",
+      "hypothesis": "ASS Every artist was first in amateur",
+      "asr_time": 0.5362758636474609,
+      "wer": 0.5,
+      "wer_details": {
+        "wer": 0.5,
+        "substitutions": 2,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 4,
+        "total_words": 6
+      }
+    },
+    {
+      "base_name": "00046",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00046_output.wav",
+      "reference": "Coffee first, adulting second.",
+      "hypothesis": "Text, call first adulting second.",
+      "asr_time": 0.4926025867462158,
+      "wer": 0.75,
+      "wer_details": {
+        "wer": 0.75,
+        "substitutions": 2,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 2,
+        "total_words": 4
+      }
+    },
+    {
+      "base_name": "00047",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00047_output.wav",
+      "reference": "Every page turned is a new adventure.",
+      "hypothesis": "Tx'd. Every page turned is a new adventure.",
+      "asr_time": 0.6007275581359863,
+      "wer": 0.14285714285714285,
+      "wer_details": {
+        "wer": 0.14285714285714285,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 7,
+        "total_words": 7
+      }
+    },
+    {
+      "base_name": "00025",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00025_output.wav",
+      "reference": "A good book is like a good friend.",
+      "hypothesis": "A good book is like a good friend.",
+      "asr_time": 0.5117802619934082,
+      "wer": 0.0,
+      "wer_details": {
+        "wer": 0.0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "hits": 8,
+        "total_words": 8
+      }
+    },
+    {
+      "base_name": "00001",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00001_output.wav",
+      "reference": "Simple pleasures are the last healthy refuge.",
+      "hypothesis": "TXT.",
+      "asr_time": 0.3870217800140381,
+      "wer": 1.0,
+      "wer_details": {
+        "wer": 1.0,
+        "substitutions": 1,
+        "deletions": 6,
+        "insertions": 0,
+        "hits": 0,
+        "total_words": 7
+      }
+    },
+    {
+      "base_name": "00054",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00054_output.wav",
+      "reference": "The best conversations happen over coffee.",
+      "hypothesis": "Audiodastics. The best conversations happen over coffee.",
+      "asr_time": 0.6843018531799316,
+      "wer": 0.16666666666666666,
+      "wer_details": {
+        "wer": 0.16666666666666666,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 6,
+        "total_words": 6
+      }
+    },
+    {
+      "base_name": "00042",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00042_output.wav",
+      "reference": "What a beautiful day to be alive!",
+      "hypothesis": "TXT, what a beautiful day to be alive.",
+      "asr_time": 0.5852301120758057,
+      "wer": 0.42857142857142855,
+      "wer_details": {
+        "wer": 0.42857142857142855,
+        "substitutions": 2,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 5,
+        "total_words": 7
+      }
+    },
+    {
+      "base_name": "00038",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00038_output.wav",
+      "reference": "Together is a wonderful place to be.",
+      "hypothesis": "Text. Together is a wonderful place to be.",
+      "asr_time": 0.6009962558746338,
+      "wer": 0.14285714285714285,
+      "wer_details": {
+        "wer": 0.14285714285714285,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 7,
+        "total_words": 7
+      }
+    },
+    {
+      "base_name": "00005",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00005_output.wav",
+      "reference": "Color is my day-long obsession, joy, and torment.",
+      "hypothesis": "Audio to ask her, TXT, Color Is My Day, Long Obsession, Joy and Torment.",
+      "asr_time": 1.012542724609375,
+      "wer": 1.5,
+      "wer_details": {
+        "wer": 1.5,
+        "substitutions": 6,
+        "deletions": 0,
+        "insertions": 6,
+        "hits": 2,
+        "total_words": 8
+      }
+    },
+    {
+      "base_name": "00043",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00043_output.wav",
+      "reference": "Energy and persistence conquer all things.",
+      "hypothesis": "TXT, energy and persistence conquer all things.",
+      "asr_time": 0.6566917896270752,
+      "wer": 0.3333333333333333,
+      "wer_details": {
+        "wer": 0.3333333333333333,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 5,
+        "total_words": 6
+      }
+    },
+    {
+      "base_name": "00024",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00024_output.wav",
+      "reference": "Laughter is an instant vacation.",
+      "hypothesis": "TXT, Lauder is an instant vacation.",
+      "asr_time": 0.6223635673522949,
+      "wer": 0.4,
+      "wer_details": {
+        "wer": 0.4,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 4,
+        "total_words": 5
+      }
+    },
+    {
+      "base_name": "00003",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00003_output.wav",
+      "reference": "Make today so awesome that yesterday gets jealous.",
+      "hypothesis": "Exed. Make today so awesome that yesterday gets jealous.",
+      "asr_time": 0.6488702297210693,
+      "wer": 0.125,
+      "wer_details": {
+        "wer": 0.125,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 8,
+        "total_words": 8
+      }
+    },
+    {
+      "base_name": "00055",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00055_output.wav",
+      "reference": "Every wall tells a story waiting to be discovered.",
+      "hypothesis": "Audio as text. Every wall tells a story waiting to be discovered.",
+      "asr_time": 0.8682942390441895,
+      "wer": 0.3333333333333333,
+      "wer_details": {
+        "wer": 0.3333333333333333,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 3,
+        "hits": 9,
+        "total_words": 9
+      }
+    },
+    {
+      "base_name": "00053",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00053_output.wav",
+      "reference": "Books are a uniquely portable magic.",
+      "hypothesis": "books are a uniquely portable magic,",
+      "asr_time": 0.4624004364013672,
+      "wer": 0.3333333333333333,
+      "wer_details": {
+        "wer": 0.3333333333333333,
+        "substitutions": 2,
+        "deletions": 0,
+        "insertions": 0,
+        "hits": 4,
+        "total_words": 6
+      }
+    },
+    {
+      "base_name": "00006",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00006_output.wav",
+      "reference": "Good friends are like stars, you don't always see them but you know they're there.",
+      "hypothesis": "ISR sold the Lazdo Nike's audio desk. Tickst. Good friends are like stars, you don't always see them but you know they're there.",
+      "asr_time": 1.6824028491973877,
+      "wer": 0.5333333333333333,
+      "wer_details": {
+        "wer": 0.5333333333333333,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 8,
+        "hits": 15,
+        "total_words": 15
+      }
+    },
+    {
+      "base_name": "00002",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00002_output.wav",
+      "reference": "The little things? The little moments? They aren't little.",
+      "hypothesis": "Asser. Text. Exed. The little things, the little moments, they aren't little.",
+      "asr_time": 1.0522851943969727,
+      "wer": 0.7777777777777778,
+      "wer_details": {
+        "wer": 0.7777777777777778,
+        "substitutions": 4,
+        "deletions": 0,
+        "insertions": 3,
+        "hits": 5,
+        "total_words": 9
+      }
+    },
+    {
+      "base_name": "00036",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00036_output.wav",
+      "reference": "Today's accomplishments were yesterday's impossibilities.",
+      "hypothesis": "Audio to ask, today's accomplished, where yesterday's impossibilities?",
+      "asr_time": 0.7462978363037109,
+      "wer": 1.4,
+      "wer_details": {
+        "wer": 1.4,
+        "substitutions": 4,
+        "deletions": 0,
+        "insertions": 3,
+        "hits": 1,
+        "total_words": 5
+      }
+    },
+    {
+      "base_name": "00013",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00013_output.wav",
+      "reference": "You are capable of amazing things.",
+      "hypothesis": "Text, you're capable of amazing things.",
+      "asr_time": 0.493314266204834,
+      "wer": 0.3333333333333333,
+      "wer_details": {
+        "wer": 0.3333333333333333,
+        "substitutions": 2,
+        "deletions": 0,
+        "insertions": 0,
+        "hits": 4,
+        "total_words": 6
+      }
+    },
+    {
+      "base_name": "00004",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00004_output.wav",
+      "reference": "The body achieves what the mind believes.",
+      "hypothesis": "Oh yes, text. The body achieves what the mind believes.",
+      "asr_time": 0.7287106513977051,
+      "wer": 0.42857142857142855,
+      "wer_details": {
+        "wer": 0.42857142857142855,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 3,
+        "hits": 7,
+        "total_words": 7
+      }
+    },
+    {
+      "base_name": "00031",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00031_output.wav",
+      "reference": "Movement is a medicine for creating change.",
+      "hypothesis": "Movement is a medicine for creating change.",
+      "asr_time": 0.5004928112030029,
+      "wer": 0.0,
+      "wer_details": {
+        "wer": 0.0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "hits": 7,
+        "total_words": 7
+      }
+    },
+    {
+      "base_name": "00008",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00008_output.wav",
+      "reference": "Creativity takes courage.",
+      "hypothesis": "Creativity takes courage.",
+      "asr_time": 0.39815497398376465,
+      "wer": 0.0,
+      "wer_details": {
+        "wer": 0.0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "hits": 3,
+        "total_words": 3
+      }
+    },
+    {
+      "base_name": "00023",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00023_output.wav",
+      "reference": "The future belongs to those who believe in the beauty of their dreams.",
+      "hypothesis": "Process 8 ASR Zazern Tours in 3 audio to ASR text. The future belongs to those who believe in the beauty of their dreams.",
+      "asr_time": 1.3491435050964355,
+      "wer": 0.8461538461538461,
+      "wer_details": {
+        "wer": 0.8461538461538461,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 11,
+        "hits": 13,
+        "total_words": 13
+      }
+    },
+    {
+      "base_name": "00052",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00052_output.wav",
+      "reference": "Great ideas deserve to be shared with the world.",
+      "hypothesis": "Audio, ass. Text, great ideas deserve to be shared with the world.",
+      "asr_time": 0.8990061283111572,
+      "wer": 0.4444444444444444,
+      "wer_details": {
+        "wer": 0.4444444444444444,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 3,
+        "hits": 8,
+        "total_words": 9
+      }
+    },
+    {
+      "base_name": "00022",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00022_output.wav",
+      "reference": "Embrace the glorious mess that you are.",
+      "hypothesis": "T-Exed, embrace the glorious mess that you are.",
+      "asr_time": 0.6704094409942627,
+      "wer": 0.2857142857142857,
+      "wer_details": {
+        "wer": 0.2857142857142857,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 6,
+        "total_words": 7
+      }
+    },
+    {
+      "base_name": "00041",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00041_output.wav",
+      "reference": "Game on! Let's give it our all!",
+      "hypothesis": "Text, game on. Let's give it our all.",
+      "asr_time": 0.7482678890228271,
+      "wer": 0.5714285714285714,
+      "wer_details": {
+        "wer": 0.5714285714285714,
+        "substitutions": 3,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 4,
+        "total_words": 7
+      }
+    },
+    {
+      "base_name": "00040",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00040_output.wav",
+      "reference": "Curiosity is the wick in the candle of learning.",
+      "hypothesis": "Audio to ask X curiosity is the wick in the candle of learning",
+      "asr_time": 0.6817364692687988,
+      "wer": 0.6666666666666666,
+      "wer_details": {
+        "wer": 0.6666666666666666,
+        "substitutions": 2,
+        "deletions": 0,
+        "insertions": 4,
+        "hits": 7,
+        "total_words": 9
+      }
+    },
+    {
+      "base_name": "00044",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00044_output.wav",
+      "reference": "Dance is the hidden language of the soul.",
+      "hypothesis": "Pext dances the hidden language of the soul.",
+      "asr_time": 0.7276268005371094,
+      "wer": 0.25,
+      "wer_details": {
+        "wer": 0.25,
+        "substitutions": 2,
+        "deletions": 0,
+        "insertions": 0,
+        "hits": 6,
+        "total_words": 8
+      }
+    },
+    {
+      "base_name": "00033",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00033_output.wav",
+      "reference": "Progress begins with meaningful conversations.",
+      "hypothesis": "X'd. Progress begins with meaningful conversations.",
+      "asr_time": 0.5396339893341064,
+      "wer": 0.2,
+      "wer_details": {
+        "wer": 0.2,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 5,
+        "total_words": 5
+      }
+    },
+    {
+      "base_name": "00050",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00050_output.wav",
+      "reference": "Life is better when you're laughing.",
+      "hypothesis": "TXT, life is better when you're laughing.",
+      "asr_time": 0.5488874912261963,
+      "wer": 0.3333333333333333,
+      "wer_details": {
+        "wer": 0.3333333333333333,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 5,
+        "total_words": 6
+      }
+    },
+    {
+      "base_name": "00007",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00007_output.wav",
+      "reference": "Your potential is endless.",
+      "hypothesis": "TXT, your potential is endless.",
+      "asr_time": 0.4988086223602295,
+      "wer": 0.5,
+      "wer_details": {
+        "wer": 0.5,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 3,
+        "total_words": 4
+      }
+    },
+    {
+      "base_name": "00020",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00020_output.wav",
+      "reference": "The more you read, the more things you will know.",
+      "hypothesis": "The more you read, the more things you will know",
+      "asr_time": 0.6496591567993164,
+      "wer": 0.1,
+      "wer_details": {
+        "wer": 0.1,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 0,
+        "hits": 9,
+        "total_words": 10
+      }
+    },
+    {
+      "base_name": "00028",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00028_output.wav",
+      "reference": "Feel the rhythm, feel the rhyme!",
+      "hypothesis": "Text, feel the rhythm, feel the rhyme.",
+      "asr_time": 0.611128568649292,
+      "wer": 0.5,
+      "wer_details": {
+        "wer": 0.5,
+        "substitutions": 2,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 4,
+        "total_words": 6
+      }
+    },
+    {
+      "base_name": "00009",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00009_output.wav",
+      "reference": "Life is better with a little rhythm.",
+      "hypothesis": "Text, life is better with a little rhythm.",
+      "asr_time": 0.6446778774261475,
+      "wer": 0.2857142857142857,
+      "wer_details": {
+        "wer": 0.2857142857142857,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 6,
+        "total_words": 7
+      }
+    },
+    {
+      "base_name": "00035",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00035_output.wav",
+      "reference": "Happiness is a journey, not a destination.",
+      "hypothesis": "Text, happiness is a journey, not a destination.",
+      "asr_time": 0.6068017482757568,
+      "wer": 0.2857142857142857,
+      "wer_details": {
+        "wer": 0.2857142857142857,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 6,
+        "total_words": 7
+      }
+    },
+    {
+      "base_name": "00049",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00049_output.wav",
+      "reference": "Knowledge is a treasure that follows its owner everywhere.",
+      "hypothesis": "Lowe's, 2004 to 9, audioed asks, text, knowledge is a treasure that follows its owner everywhere.",
+      "asr_time": 1.0796282291412354,
+      "wer": 0.8888888888888888,
+      "wer_details": {
+        "wer": 0.8888888888888888,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 7,
+        "hits": 8,
+        "total_words": 9
+      }
+    },
+    {
+      "base_name": "00014",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00014_output.wav",
+      "reference": "Beauty is everywhere you choose to see it.",
+      "hypothesis": "Audio SRT-XBV is everywhere you choose to see it.",
+      "asr_time": 0.786961555480957,
+      "wer": 0.25,
+      "wer_details": {
+        "wer": 0.25,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 1,
+        "hits": 7,
+        "total_words": 8
+      }
+    },
+    {
+      "base_name": "00012",
+      "audio_file": "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/TTS/F5-TTS/output_bench1/00012_output.wav",
+      "reference": "You're braver than you believe, stronger than you seem, and smarter than you think.",
+      "hypothesis": "ProcessedASR, Zotawadio, asks, text, you're braver than you believe, stronger than you seem, and smarter than you think.",
+      "asr_time": 1.6162042617797852,
+      "wer": 0.35714285714285715,
+      "wer_details": {
+        "wer": 0.35714285714285715,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 4,
+        "hits": 13,
+        "total_words": 14
+      }
+    }
+  ],
+  "statistics": {
+    "average_wer": 0.5122391740812794,
+    "wer_percentage": 51.22391740812794,
+    "min_wer": 0.0,
+    "max_wer": 1.8333333333333333,
+    "std_wer": 0.40866406874813893,
+    "total_substitutions": 90,
+    "total_deletions": 8,
+    "total_insertions": 122,
+    "total_words": 437,
+    "average_asr_time": 0.7798485672264769,
+    "total_asr_time": 44.45136833190918
+  }
+}

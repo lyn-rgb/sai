@@ -1,0 +1,80 @@
+ID	Audio1	Audio2	Similarity
+--------------------------------------------------
+00001	00001_audio.wav	00001_output.wav	0.7084
+00002	00002_audio.wav	00002_output.wav	0.6659
+00003	00003_audio.wav	00003_output.wav	0.5827
+00004	00004_audio.wav	00004_output.wav	0.5643
+00005	00005_audio.wav	00005_output.wav	0.6717
+00006	00006_audio.wav	00006_output.wav	0.5423
+00007	00007_audio.wav	00007_output.wav	0.7005
+00008	00008_audio.wav	00008_output.wav	0.6931
+00009	00009_audio.wav	00009_output.wav	0.6136
+00010	00010_audio.wav	00010_output.wav	0.5766
+00011	00011_audio.wav	00011_output.wav	0.6271
+00012	00012_audio.wav	00012_output.wav	0.6885
+00013	00013_audio.wav	00013_output.wav	0.5274
+00014	00014_audio.wav	00014_output.wav	0.5453
+00015	00015_audio.wav	00015_output.wav	0.1833
+00016	00016_audio.wav	00016_output.wav	0.5772
+00017	00017_audio.wav	00017_output.wav	0.5367
+00018	00018_audio.wav	00018_output.wav	0.4535
+00019	00019_audio.wav	00019_output.wav	0.4189
+00020	00020_audio.wav	00020_output.wav	0.6956
+00021	00021_audio.wav	00021_output.wav	0.5674
+00022	00022_audio.wav	00022_output.wav	0.7121
+00023	00023_audio.wav	00023_output.wav	0.6914
+00024	00024_audio.wav	00024_output.wav	0.7025
+00025	00025_audio.wav	00025_output.wav	0.5604
+00026	00026_audio.wav	00026_output.wav	0.7060
+00027	00027_audio.wav	00027_output.wav	0.6138
+00028	00028_audio.wav	00028_output.wav	0.5382
+00029	00029_audio.wav	00029_output.wav	0.6890
+00030	00030_audio.wav	00030_output.wav	0.7101
+00031	00031_audio.wav	00031_output.wav	0.7125
+00032	00032_audio.wav	00032_output.wav	0.5792
+00033	00033_audio.wav	00033_output.wav	0.6166
+00034	00034_audio.wav	00034_output.wav	0.6459
+00035	00035_audio.wav	00035_output.wav	0.4453
+00036	00036_audio.wav	00036_output.wav	0.6886
+00037	00037_audio.wav	00037_output.wav	0.7288
+00038	00038_audio.wav	00038_output.wav	0.5115
+00039	00039_audio.wav	00039_output.wav	0.2776
+00040	00040_audio.wav	00040_output.wav	0.7722
+00041	00041_audio.wav	00041_output.wav	0.7206
+00042	00042_audio.wav	00042_output.wav	0.4220
+00043	00043_audio.wav	00043_output.wav	0.6144
+00044	00044_audio.wav	00044_output.wav	0.5626
+00045	00045_audio.wav	00045_output.wav	0.4926
+00046	00046_audio.wav	00046_output.wav	0.5482
+00047	00047_audio.wav	00047_output.wav	0.5429
+00048	00048_audio.wav	00048_output.wav	0.4970
+00049	00049_audio.wav	00049_output.wav	0.7550
+00050	00050_audio.wav	00050_output.wav	0.6150
+00051	00051_audio.wav	00051_output.wav	0.7754
+00052	00052_audio.wav	00052_output.wav	0.7468
+00053	00053_audio.wav	00053_output.wav	0.7559
+00054	00054_audio.wav	00054_output.wav	0.5475
+00055	00055_audio.wav	00055_output.wav	0.7357
+00056	00056_audio.wav	00056_output.wav	0.6930
+00057	00057_audio.wav	00057_output.wav	0.7845
+00058	00058_audio.wav	00058_output.wav	0.4852
+00059	00059_audio.wav	00059_output.wav	0.6774
+00060	00060_audio.wav	00060_output.wav	0.4553
+00061	00061_audio.wav	00061_output.wav	0.4905
+00062	00062_audio.wav	00062_output.wav	0.8227
+00063	00063_audio.wav	00063_output.wav	0.7633
+00064	00064_audio.wav	00064_output.wav	0.7313
+00065	00065_audio.wav	00065_output.wav	0.7226
+00066	00066_audio.wav	00066_output.wav	0.7249
+00067	00067_audio.wav	00067_output.wav	0.7688
+00068	00068_audio.wav	00068_output.wav	0.7698
+00069	00069_audio.wav	00069_output.wav	0.4680
+00070	00070_audio.wav	00070_output.wav	0.7389
+
+==================================================
+SUMMARY STATISTICS:
+Total pairs: 70
+Average similarity: 0.6210
+Std similarity: 0.1230
+Max similarity: 0.8227
+Min similarity: 0.1833

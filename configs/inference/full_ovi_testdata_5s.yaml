@@ -1,0 +1,35 @@
+ckpt_dir: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/ckpts
+ckpt_name: Ovi/model.safetensors
+lora_path: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/copy-Lab1/ilm/sai/logs/baseline/2026-01-11_sai_1M_cropped_ip-embs_self-lora_bs-16/ckpt/step-98000.safetensors
+self_lora: true
+load_lora: true
+lora_strict: false
+zero_lora_layers: false
+use_reference_tokens: true
+use_ip_embeddings: true
+init_ip_embedding_layers: true
+face_embedder_ckpt_dir: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/ckpts/InsightFace
+face_ip_emb_dim: 512
+audio_embedder_ckpt_dir: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/weights/naturalspeech3_facodec
+audio_ip_emb_dim: 256
+output_dir: ./outputs/full_ovi_testdata_5s
+sample_steps: 50
+solver_name: unipc
+shift: 5.0
+duration_seconds: 5.0
+fps: 24
+sp_size: 1
+audio_guidance_scale: 3.0
+video_guidance_scale: 4.0
+mode: "id2v"
+fp8: false
+cpu_offload: false
+seed: 102
+crop_face: true
+video_negative_prompt: "jitter, bad hands, blur, distortion, two people, two persons, aerial view, overexposed, low quality, deformation, a poor composition, bad hands, bad teeth, bad eyes, bad limbs, distortion, blurring, text, subtitles, static, picture, black border"
+audio_negative_prompt: "robotic, muffled, echo, distorted"
+video_frame_height_width: [576, 992]
+text_prompt: ./evaluation/testdata/generated_prompts/id2v_full_video_prompts.csv
+slg_layer: 11
+each_example_n_times: 1
+skip_existing_outputs: false

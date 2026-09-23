@@ -1,0 +1,105 @@
+device: cuda
+ffmpeg_bin: ffmpeg
+
+conda:
+  executable: conda
+
+metric_envs:
+  clip: sai
+  facesim: sai
+  wer: tts-eval
+  audio_sim: tts-eval
+  fad: tts-eval
+  fvd: sai
+  syncnet: sai
+
+resume:
+  enabled: true
+  skip_completed_metrics: true
+
+paths:
+  testdata_dir: evaluation/testdata
+  prompt_dir_name: full_video_prompt
+  frame_dir_name: frames
+  audio_dir_name: audio
+  asr_dir_name: ASR
+  output_dir: evaluation/results
+  workspace_dir: evaluation/results/workspace
+
+weights:
+  clip_model_path: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/Lab/custom/ConsisID/ckpts/data_process/clip-vit-base-patch32
+  face_model_path: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/Lab/custom/ConsisID/eval/ckpts
+  inception_weights_path: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/Lab/custom/ConsisID/eval/ckpts/face_encoder/inception_v3_google-0cc3c7bd.pth
+  face_curricular_path: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/Lab/custom/ConsisID/eval/ckpts/face_encoder/glint360k_curricular_face_r101_backbone.bin
+  whisper_model_path: large-v3
+  speaker_verification_checkpoint: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/Lab/TTS/evaluation/UniSpeech/downstreams/speaker_verification/ckpt/wavlm_large_finetune.pth
+  fad_hf_cache: "/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/ConsisID/eval/new_metric/frechet-audio-distance/facebook/"
+  fvd_videogpt_i3d_path: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/Lab/custom/ConsisID/eval/new_metric/common_metrics_on_video_quality/fvd/videogpt/i3d_pretrained_400.pt
+  fvd_styleganv_i3d_path: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/Lab/custom/ConsisID/eval/new_metric/common_metrics_on_video_quality/fvd/styleganv/i3d_torchscript.pt
+  syncnet_model_path: /inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/Lab/custom/ConsisID/eval/new_metric/Wav2Lip/evaluation/syncnet_python/data/syncnet_v2.model
+
+metrics:
+  clip:
+    enabled: true
+    device: cuda
+    num_frames: 16
+  facesim:
+    enabled: true
+    device: cuda
+    parallel_jobs: 2
+    devices: ["cuda:0"]
+    num_frames: 16
+  wer:
+    enabled: true
+    lang: en
+  audio_sim:
+    enabled: true
+    model_name: wavlm_large
+    use_gpu: true
+  fad:
+    enabled: true
+    model_name: vggish
+    sample_rate: 16000
+    use_pca: false
+    use_activation: false
+    dtype: float32
+    offline: false
+    verbose: false
+  fvd:
+    enabled: true
+    real_video_dir: "/inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/Lab/custom/ConsisID/eval/new_metric/sample_70_real_video"
+    device: cuda
+    method: videogpt
+    only_final: true
+    batch_size: 1
+    max_frames: 30
+    frame_size: [224, 224]
+  syncnet:
+    enabled: true
+    use_crop_pipeline: true
+    allow_full_frame_fallback: false
+    batch_size: 10
+    vshift: 15
+    facedet_scale: 0.25
+    crop_scale: 0.40
+    min_track: 100
+    frame_rate: 25
+    num_failed_det: 25
+    min_face_size: 100
+
+result_sets:
+  - name: text_only_ovi
+    path: outputs/ablations/text_only_ovi/ip_image_False_ip_audio_False
+    enabled: false
+  - name: no_lora_ref_tokens
+    path: outputs/ablations/no_lora_ref_tokens/ip_image_True_ip_audio_True
+    enabled: false
+  - name: no_face_timbre_extractors
+    path: outputs/ablations/no_face_timbre_extractors/ip_image_True_ip_audio_True
+    enabled: false
+  - name: dreamid_omni_recovered
+    path: outputs/comparison/dreamid_omni_testdata_recovered/ip_image_True_ip_audio_True
+    enabled: false
+  - name: seedance2
+    path: outputs/seedance
+    enabled: true

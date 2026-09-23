@@ -1,0 +1,52 @@
+# Multi-person reference conditioning (N reference persons per sample).
+# Differences from `model.yaml` are grouped at the bottom.
+# model
+ckpt_dir: ./ckpts
+ckpt_name: Ovi/model.safetensors
+
+# face embedder
+face_embedder_ckpt_dir: ./ckpts/InsightFace
+face_ip_emb_dim: 512
+# audio embedder, TODO
+audio_embedder_ckpt_dir: ../weights/naturalspeech3_facodec
+audio_ip_emb_dim: 256
+# asr model
+glm_asr_ckpt_path: ./ckpts/GLM_ASR/GLM-ASR-Nano-2512
+max_new_tokens: 128
+# vae
+height_division_factor: 16
+width_division_factor: 16
+time_division_factor: 4
+time_division_remainder: 1
+
+cpu_offload: False
+self_lora: True #True False
+use_contrastive: True
+contrastive_weight: 0.1
+contrastive_cutoff: 0.2
+time_shift: 5
+use_sp: False
+sp_size: 1
+
+# --- multi-person reference conditioning ---
+# reference persons per sample; the dataset pads shorter samples by duplicating slot 0
+n_refs: 2
+# reference-pair audio<->video fusion: person j's reference face tokens attend to person j's
+# reference audio tokens (and back), which binds a reference face to its voice. Reference tokens
+# never entered the fusion cross-attention before, so this is the actual multi-person mechanism.
+use_ref_av_fusion: true
+fusion_lora_rank: 128
+# reference audio length in target-fps frames (16 kHz): the annotated clips carry ~2 s of clean
+# speech per person, so a short reference keeps far more clips usable. Must match the inference
+# side (`ref_audio_samples = ref_audio_frames * 16000 / 24`).
+ref_audio_frames: 24
+# the ASR rewrite replaces everything between the first `<S>` and the last `<E>` (greedy regex),
+# which deletes the speaker tags of a multi-person caption - the annotated transcripts are used
+# as-is instead (the converter trims them to the target window word by word).
+fix_prompt_with_asr: false
+# `k_fusion_lora`/`v_fusion_lora` are the adapters on the fusion K/V projections used by the
+# reference-pair route (zero initialized, so the route starts as a no-op). `pre_attn_norm_fusion`
+# and `norm_k_fusion` now receive reference tokens too, so they are unfrozen as well.
+# NOTE, `s_*loras` (the "self" LoRA set) are dropped here: no forward pass references them, they
+# are pure dead weight (188M params in every checkpoint).
+trainable_models: "q_loras,k_loras,v_loras,o_loras,ip_embedding,ip_projection,k_fusion_lora,v_fusion_lora,pre_attn_norm_fusion,norm_k_fusion"

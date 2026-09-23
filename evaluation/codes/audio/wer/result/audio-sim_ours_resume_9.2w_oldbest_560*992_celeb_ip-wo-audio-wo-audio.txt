@@ -1,0 +1,13 @@
+ID	Audio1	Audio2	Similarity
+--------------------------------------------------
+00001	00001_audio.wav	00001_crop-True_Sam_Altman_stands_at_the_podium_in_OpenAI's_luxuri_560x992_102_0_audio.wav	0.3027
+00002	00002_audio.wav	00002_crop-True_Fei-Fei_Li_stands_before_the_iconic_Rockefeller_Ce_560x992_102_0_audio.wav	0.0856
+00003	00003_audio.wav	00003_crop-True_LeCun_stands_on_a_bustling_street_in_Shanghai,_the_560x992_102_0_audio.wav	-0.0261
+
+==================================================
+SUMMARY STATISTICS:
+Total pairs: 3
+Average similarity: 0.1207
+Std similarity: 0.1365
+Max similarity: 0.3027
+Min similarity: -0.0261

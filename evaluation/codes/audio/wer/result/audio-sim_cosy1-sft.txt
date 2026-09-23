@@ -1,0 +1,67 @@
+ID	Audio1	Audio2	Similarity
+--------------------------------------------------
+00001	00001_audio.wav	00001_tts_0.wav	0.6318
+00002	00002_audio.wav	00002_tts_0.wav	0.5148
+00003	00003_audio.wav	00003_tts_0.wav	0.5814
+00004	00004_audio.wav	00004_tts_0.wav	0.5404
+00005	00005_audio.wav	00005_tts_0.wav	0.4958
+00006	00006_audio.wav	00006_tts_0.wav	0.2397
+00007	00007_audio.wav	00007_tts_0.wav	0.6494
+00008	00008_audio.wav	00008_tts_0.wav	0.4579
+00009	00009_audio.wav	00009_tts_0.wav	0.4778
+00010	00010_audio.wav	00010_tts_0.wav	0.4835
+00011	00011_audio.wav	00011_tts_0.wav	0.5098
+00012	00012_audio.wav	00012_tts_0.wav	0.4103
+00013	00013_audio.wav	00013_tts_0.wav	0.4588
+00014	00014_audio.wav	00014_tts_0.wav	0.2667
+00015	00015_audio.wav	00015_tts_0.wav	0.4437
+00016	00016_audio.wav	00016_tts_0.wav	0.3566
+00017	00017_audio.wav	00017_tts_0.wav	0.6045
+00018	00018_audio.wav	00018_tts_0.wav	0.5148
+00019	00019_audio.wav	00019_tts_0.wav	0.5423
+00020	00020_audio.wav	00020_tts_0.wav	0.3343
+00021	00021_audio.wav	00021_tts_0.wav	0.3888
+00022	00022_audio.wav	00022_tts_0.wav	0.4843
+00023	00023_audio.wav	00023_tts_0.wav	0.6390
+00024	00024_audio.wav	00024_tts_0.wav	0.5675
+00025	00025_audio.wav	00025_tts_0.wav	0.5594
+00026	00026_audio.wav	00026_tts_0.wav	0.5825
+00027	00027_audio.wav	00027_tts_0.wav	0.4783
+00028	00028_audio.wav	00028_tts_0.wav	0.3748
+00029	00029_audio.wav	00029_tts_0.wav	0.6047
+00030	00030_audio.wav	00030_tts_0.wav	0.4439
+00031	00031_audio.wav	00031_tts_0.wav	0.5325
+00032	00032_audio.wav	00032_tts_0.wav	0.5677
+00033	00033_audio.wav	00033_tts_0.wav	0.4871
+00034	00034_audio.wav	00034_tts_0.wav	0.5317
+00035	00035_audio.wav	00035_tts_0.wav	0.3875
+00036	00036_audio.wav	00036_tts_0.wav	0.5937
+00037	00037_audio.wav	00037_tts_0.wav	0.5830
+00038	00038_audio.wav	00038_tts_0.wav	0.5488
+00039	00039_audio.wav	00039_tts_0.wav	0.4148
+00040	00040_audio.wav	00040_tts_0.wav	0.5915
+00041	00041_audio.wav	00041_tts_0.wav	0.3170
+00042	00042_audio.wav	00042_tts_0.wav	0.5112
+00043	00043_audio.wav	00043_tts_0.wav	0.5577
+00044	00044_audio.wav	00044_tts_0.wav	0.5880
+00045	00045_audio.wav	00045_tts_0.wav	0.5465
+00046	00046_audio.wav	00046_tts_0.wav	0.6370
+00047	00047_audio.wav	00047_tts_0.wav	0.4858
+00048	00048_audio.wav	00048_tts_0.wav	0.7014
+00049	00049_audio.wav	00049_tts_0.wav	0.4980
+00050	00050_audio.wav	00050_tts_0.wav	0.5212
+00051	00051_audio.wav	00051_tts_0.wav	0.6504
+00052	00052_audio.wav	00052_tts_0.wav	0.6321
+00053	00053_audio.wav	00053_tts_0.wav	0.6471
+00054	00054_audio.wav	00054_tts_0.wav	0.6623
+00055	00055_audio.wav	00055_tts_0.wav	0.4650
+00056	00056_audio.wav	00056_tts_0.wav	0.5215
+00057	00057_audio.wav	00057_tts_0.wav	0.5674
+
+==================================================
+SUMMARY STATISTICS:
+Total pairs: 57
+Average similarity: 0.5155
+Std similarity: 0.0995
+Max similarity: 0.7014
+Min similarity: 0.2397

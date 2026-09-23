@@ -1,0 +1,15 @@
+WER Calculation Results
+=======================
+Total files processed: 57
+Average WER: 0.5122 (51.22%)
+WER Range: 0.0000 - 1.8333
+Standard Deviation: 0.4087
+Total processing time: 67.82s
+Average ASR time per file: 0.78s
+
+Error Breakdown:
+Substitutions: 90
+Deletions: 8
+Insertions: 122
+Total words: 437
+Total errors: 220

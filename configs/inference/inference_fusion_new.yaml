@@ -1,0 +1,32 @@
+ckpt_dir: ./ckpts
+ckpt_name: Ovi/model_960x960.safetensors
+lora_path: /inspire/qb-ilm/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/logs/baseline/2026-01-17_sai_1M_cropped_ip-embs_self-lora_bs-16-base_960x960/ckpt/step-18000.safetensors
+#/inspire/qb-ilm/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/logs/baseline/2026-01-17_sai_1M_cropped_ip-embs_self-lora_bs-16-base_960x960/ckpt
+self_lora: true #true False
+# face embedder 
+face_embedder_ckpt_dir: ./ckpts/InsightFace
+face_ip_emb_dim: 512
+# audio embedder
+audio_embedder_ckpt_dir: ../weights/naturalspeech3_facodec
+audio_ip_emb_dim: 256
+# output
+output_dir: ./outputs/sai_1M_cropped_ip_embs_gpus_8_online_asr_new_1.8w_5s_up_res_576*992 #/inspire/qb-ilm/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/outputs/sai_1M_cropped_ip_embs_gpus_8_online_asr_sa_lora_13.4w_5s_up_res_Highres   #  # #    #/inspire/qb-ilm/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/outputs/sai_1M_cropped_ip_embs_gpus_8_90000/benchmark
+sample_steps: 50
+solver_name: unipc
+shift: 5.0
+duration_seconds: 5.0
+fps: 24
+sp_size: 1
+audio_guidance_scale: 3.0
+video_guidance_scale: 4.0
+mode: "id2v"                                                  # ["id2v", "t2v", "i2v", "t2i2v"] all comes with audio
+fp8: False
+cpu_offload: False
+seed: 102
+crop_face: true 
+video_negative_prompt: "jitter, bad hands, blur, distortion, two people, two persons, aerial view, overexposed, low quality, deformation, a poor composition, bad hands, bad teeth, bad eyes, bad limbs, distortion, blurring, text, subtitles, static, picture, black border" # "jitter, bad hands, blur, distortion, two people, super-big head, no human"  # Artifacts to avoid in video
+audio_negative_prompt: "robotic, muffled, echo, distorted"    # Artifacts to avoid in audio
+video_frame_height_width: [576, 992] #[720, 1280]  [512, 992]                       # only useful if mode = t2v or t2i2v, recommended values: [512, 992], [992, 512], [960, 512], [512, 960], [720, 720], [448, 1120]
+text_prompt: ./example_prompts/benchmark_new-v6.csv  #./example_prompts/gpt_examples_id2v_hilary.csv #./example_prompts/benchmark_new-v6.csv   # text_prompt: gpt_examples_id2v_hilary.csv
+slg_layer: 11
+each_example_n_times: 1

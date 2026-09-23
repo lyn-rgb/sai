@@ -1,0 +1,80 @@
+ID	Audio1	Audio2	Similarity
+--------------------------------------------------
+00001	00001_audio.wav	00001_cloned.wav	0.6309
+00002	00002_audio.wav	00002_cloned.wav	0.4807
+00003	00003_audio.wav	00003_cloned.wav	0.7096
+00004	00004_audio.wav	00004_cloned.wav	0.3746
+00005	00005_audio.wav	00005_cloned.wav	0.6802
+00006	00006_audio.wav	00006_cloned.wav	0.4203
+00007	00007_audio.wav	00007_cloned.wav	0.6811
+00008	00008_audio.wav	00008_cloned.wav	0.5040
+00009	00009_audio.wav	00009_cloned.wav	0.4852
+00010	00010_audio.wav	00010_cloned.wav	0.5650
+00011	00011_audio.wav	00011_cloned.wav	0.5422
+00012	00012_audio.wav	00012_cloned.wav	0.6642
+00013	00013_audio.wav	00013_cloned.wav	0.5115
+00014	00014_audio.wav	00014_cloned.wav	0.3570
+00015	00015_audio.wav	00015_cloned.wav	0.3227
+00016	00016_audio.wav	00016_cloned.wav	0.4670
+00017	00017_audio.wav	00017_cloned.wav	0.5084
+00018	00018_audio.wav	00018_cloned.wav	0.5430
+00019	00019_audio.wav	00019_cloned.wav	0.3460
+00020	00020_audio.wav	00020_cloned.wav	0.6076
+00021	00021_audio.wav	00021_cloned.wav	0.4019
+00022	00022_audio.wav	00022_cloned.wav	0.6533
+00023	00023_audio.wav	00023_cloned.wav	0.5919
+00024	00024_audio.wav	00024_cloned.wav	0.5320
+00025	00025_audio.wav	00025_cloned.wav	0.5498
+00026	00026_audio.wav	00026_cloned.wav	0.5989
+00027	00027_audio.wav	00027_cloned.wav	0.5475
+00028	00028_audio.wav	00028_cloned.wav	0.2867
+00029	00029_audio.wav	00029_cloned.wav	0.6036
+00030	00030_audio.wav	00030_cloned.wav	0.6757
+00031	00031_audio.wav	00031_cloned.wav	0.5447
+00032	00032_audio.wav	00032_cloned.wav	0.4701
+00033	00033_audio.wav	00033_cloned.wav	0.6769
+00034	00034_audio.wav	00034_cloned.wav	0.4225
+00035	00035_audio.wav	00035_cloned.wav	0.5438
+00036	00036_audio.wav	00036_cloned.wav	0.5370
+00037	00037_audio.wav	00037_cloned.wav	0.6658
+00038	00038_audio.wav	00038_cloned.wav	0.6215
+00039	00039_audio.wav	00039_cloned.wav	0.4123
+00040	00040_audio.wav	00040_cloned.wav	0.5590
+00041	00041_audio.wav	00041_cloned.wav	0.4270
+00042	00042_audio.wav	00042_cloned.wav	0.5330
+00043	00043_audio.wav	00043_cloned.wav	0.5106
+00044	00044_audio.wav	00044_cloned.wav	0.5188
+00045	00045_audio.wav	00045_cloned.wav	0.4663
+00046	00046_audio.wav	00046_cloned.wav	0.5749
+00047	00047_audio.wav	00047_cloned.wav	0.5951
+00048	00048_audio.wav	00048_cloned.wav	0.6303
+00049	00049_audio.wav	00049_cloned.wav	0.6061
+00050	00050_audio.wav	00050_cloned.wav	0.5720
+00051	00051_audio.wav	00051_cloned.wav	0.6460
+00052	00052_audio.wav	00052_cloned.wav	0.6572
+00053	00053_audio.wav	00053_cloned.wav	0.5374
+00054	00054_audio.wav	00054_cloned.wav	0.6119
+00055	00055_audio.wav	00055_cloned.wav	0.5689
+00056	00056_audio.wav	00056_cloned.wav	0.6703
+00057	00057_audio.wav	00057_cloned.wav	0.6646
+00058	00058_audio.wav	00058_cloned.wav	0.6749
+00059	00059_audio.wav	00059_cloned.wav	0.6920
+00060	00060_audio.wav	00060_cloned.wav	0.4338
+00061	00061_audio.wav	00061_cloned.wav	0.5861
+00062	00062_audio.wav	00062_cloned.wav	0.7014
+00063	00063_audio.wav	00063_cloned.wav	0.5948
+00064	00064_audio.wav	00064_cloned.wav	0.6663
+00065	00065_audio.wav	00065_cloned.wav	0.5504
+00066	00066_audio.wav	00066_cloned.wav	0.6590
+00067	00067_audio.wav	00067_cloned.wav	0.6255
+00068	00068_audio.wav	00068_cloned.wav	0.6796
+00069	00069_audio.wav	00069_cloned.wav	0.4507
+00070	00070_audio.wav	00070_cloned.wav	0.6942
+
+==================================================
+SUMMARY STATISTICS:
+Total pairs: 70
+Average similarity: 0.5585
+Std similarity: 0.1016
+Max similarity: 0.7096
+Min similarity: 0.2867

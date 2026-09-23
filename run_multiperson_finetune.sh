@@ -119,16 +119,18 @@ fi
 mkdir -p "$FEAT_DIR"
 FEAT_COUNT=$(find "$FEAT_DIR" -maxdepth 1 -name '*.pt' | wc -l | tr -d ' ')
 if [[ $RUN_FEATS -eq 1 ]]; then
-  if [[ "$FEAT_COUNT" -gt 0 && "${FORCE_FEATS:-0}" != "1" ]]; then
-    echo "==> [1/3] 跳过参考人脸特征（已有 $FEAT_COUNT 个 .pt，FORCE_FEATS=1 可强制重算）"
-  else
-    echo "==> [1/3] 提取参考人脸特征（antelopev2）"
-    "$PYTHON_BIN" dataset/extract_ref_face_feats.py \
-      --annotation-root "$ANN_ROOT" \
-      --output-dir      "$FEAT_DIR" \
-      --face-embedder-ckpt "$FACE_EMBEDDER_CKPT"
-    FEAT_COUNT=$(find "$FEAT_DIR" -maxdepth 1 -name '*.pt' | wc -l | tr -d ' ')
-  fi
+  # 这一步是增量的（已存在的 .pt 会跳过），所以每次都跑一遍；
+  # 不能按「.pt 数量 > 0 就跳过」——部分完成的目录会被误判成已完成，后面整批样本因缺特征被丢。
+  # FORCE_FEATS=1 → --overwrite，重算已有文件。
+  OVERWRITE_ARGS=()
+  [[ "${FORCE_FEATS:-0}" == "1" ]] && OVERWRITE_ARGS=(--overwrite)
+  echo "==> [1/3] 提取参考人脸特征（antelopev2，增量；已有 $FEAT_COUNT 个 .pt，FORCE_FEATS=1 可重算）"
+  "$PYTHON_BIN" dataset/extract_ref_face_feats.py \
+    --annotation-root "$ANN_ROOT" \
+    --output-dir      "$FEAT_DIR" \
+    --face-embedder-ckpt "$FACE_EMBEDDER_CKPT" \
+    ${OVERWRITE_ARGS[@]+"${OVERWRITE_ARGS[@]}"}
+  FEAT_COUNT=$(find "$FEAT_DIR" -maxdepth 1 -name '*.pt' | wc -l | tr -d ' ')
   [[ "$FEAT_COUNT" -gt 0 ]] || fail "没有生成任何参考人脸特征，检查 $ANN_ROOT/*/s3-cluster/faces/"
 fi
 

@@ -274,25 +274,10 @@ def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: in
     annotation = load_json(annotation_path)
     segments = load_json(segments_path)
     qa = load_json(qa_path) if qa_path.is_file() else {}
-
-    if require_qa_pass and qa and not qa.get("passed", False):
-        failed = [g["name"] for g in qa.get("gates", []) if not g.get("passed", True)]
-        return None, f"qa_failed: {', '.join(failed) or 'unknown gate'}"
-    if not allow_offscreen_speech and qa.get("notes", {}).get("offscreen_speakers", 0):
-        return None, f"offscreen_speech: {qa['notes']['offscreen_speakers']} offscreen speaker(s)"
-
     segments_by_person = speaking_identities(segments)
-    if len(segments_by_person) != n_refs:
-        return None, f"identity_count: {len(segments_by_person)} speaking identit(ies) with audio, n_refs={n_refs}"
 
-    total_resampled = resampled_frame_count(probe, target_fps)
-    start_frame = choose_window(segments_by_person, total_resampled, num_frames, target_fps, ref_seconds,
-                                min_target_seconds=min_target_seconds)
-    if start_frame is None:
-        return None, (f"no_window: no {num_frames}-frame window with >= {min_target_seconds:.1f}s of speech inside "
-                      f"and {ref_seconds:.1f}s of reference audio outside for every person "
-                      f"({total_resampled} frames available)")
-
+    # 前置资料检查放在最前：特征缺失属于「流水线没跑完」，不该藏在样本质量过滤的后面
+    # （否则补齐特征后各桶的计数会大幅漂移，看不出真实瓶颈）
     face_paths, feat_paths, spk_paths, spk_spans = [], [], [], []
     for face_id, spans in segments_by_person.items():
         face_path = annotation_dir / "s3-cluster" / "faces" / f"{face_id}.jpg"
@@ -300,8 +285,8 @@ def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: in
         if not face_path.is_file():
             return None, f"missing_file: no reference face {face_path.name}"
         if not feat_path.is_file():
-            return None, (f"missing_file: no reference features {feat_path} - run "
-                          f"`dataset/extract_ref_face_feats.py` first")
+            return None, (f"missing_file: no reference features {feat_path.name} - run "
+                          f"`dataset/extract_ref_face_feats.py` over the whole corpus first")
         audio_files = []
         for span in spans:
             segment_path = annotation_dir / span["audio"]
@@ -312,6 +297,26 @@ def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: in
         feat_paths.append(str(feat_path.resolve()))
         spk_paths.append(",".join(audio_files))
         spk_spans.append([[float(s["start"]), float(s["end"])] for s in spans])
+
+    if require_qa_pass and qa and not qa.get("passed", False):
+        failed = [g["name"] for g in qa.get("gates", []) if not g.get("passed", True)]
+        return None, f"qa_failed: {', '.join(failed) or 'unknown gate'}"
+    if not allow_offscreen_speech and qa.get("notes", {}).get("offscreen_speakers", 0):
+        return None, f"offscreen_speech: {qa['notes']['offscreen_speakers']} offscreen speaker(s)"
+
+    if len(segments_by_person) != n_refs:
+        # 区分「几个人在说话」与「几个人有可用音频」，便于判断是数据问题还是流水线问题
+        speakers = [f["face_id"] for f in annotation.get("face_tracks", []) if f.get("speaks")]
+        return None, (f"identity_count: {len(segments_by_person)} identit(ies) with extracted audio, "
+                      f"{len(speakers)} marked as speaking, n_refs={n_refs}")
+
+    total_resampled = resampled_frame_count(probe, target_fps)
+    start_frame = choose_window(segments_by_person, total_resampled, num_frames, target_fps, ref_seconds,
+                                min_target_seconds=min_target_seconds)
+    if start_frame is None:
+        return None, (f"no_window: no {num_frames}-frame window with >= {min_target_seconds:.1f}s of speech inside "
+                      f"and {ref_seconds:.1f}s of reference audio outside for every person "
+                      f"({total_resampled} frames available)")
 
     window_start_s = start_frame / target_fps
     window_end_s = window_start_s + num_frames / target_fps

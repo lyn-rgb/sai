@@ -1,7 +1,10 @@
+import atexit
 import gc
 import json
 import os
 import os.path as osp
+import shutil
+import tempfile
 
 import math
 import numpy as np
@@ -21,16 +24,42 @@ import torchvision.transforms as transforms
 from . import video_transforms
 
 
-# 语料里的视频常常没有扩展名（例如 `.../clips/<hash>`）；decord 会按扩展名推断容器格式，
-# 所以无扩展名的文件直接喂字节，避免开不了
+# 语料里的视频常常没有扩展名（例如 `.../clips/<hash>`）
 VIDEO_EXTS = {".mp4", ".mkv", ".webm", ".mov", ".avi", ".m4v"}
+
+_VIDEO_ALIAS_DIR = None
+_VIDEO_ALIASES: dict = {}
+
+
+def _video_alias(video_path: str) -> str:
+    """给无扩展名的视频做一个带 `.mp4` 的软链接（部分 decord 版本按扩展名分派解码器）。"""
+    global _VIDEO_ALIAS_DIR
+    resolved = osp.abspath(video_path)
+    alias = _VIDEO_ALIASES.get(resolved)
+    if alias is None:
+        if _VIDEO_ALIAS_DIR is None:
+            _VIDEO_ALIAS_DIR = tempfile.mkdtemp(prefix="sai_video_alias_")
+            atexit.register(shutil.rmtree, _VIDEO_ALIAS_DIR, ignore_errors=True)
+        alias = osp.join(_VIDEO_ALIAS_DIR, f"{len(_VIDEO_ALIASES):06d}.mp4")
+        os.symlink(resolved, alias)
+        _VIDEO_ALIASES[resolved] = alias
+    return alias
 
 
 def open_video_reader(video_path):
-    if osp.splitext(str(video_path))[-1].lower() in VIDEO_EXTS:
-        return decord.VideoReader(str(video_path))
-    with open(video_path, "rb") as f:
-        return decord.VideoReader(f.read())
+    """打开视频文件。
+
+    无扩展名时先按原路径直接打开（ffmpeg 通常能按内容嗅探容器；注意**不能**把字节喂给 decord，
+    有些版本会直接报 `Don't know how to handle type <class 'bytes'>`），失败再用带 `.mp4`
+    后缀的软链接重试。
+    """
+    path = str(video_path)
+    if osp.splitext(path)[-1].lower() in VIDEO_EXTS:
+        return decord.VideoReader(path)
+    try:
+        return decord.VideoReader(path)
+    except Exception:
+        return decord.VideoReader(_video_alias(path))
 
 
 class TextAudioVideoDataset(Dataset):

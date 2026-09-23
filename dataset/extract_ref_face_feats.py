@@ -259,6 +259,11 @@ def main() -> None:
 
     print(f"Wrote {written} reference faces to {args.output_dir} "
           f"(skipped {skipped}, failed {len(failures)}; {padded} 需补边才检出, {fallback_crops} 用了紧裁剪兜底)")
+    if fallback_crops > max(10, 0.02 * max(written, 1)):
+        print("⚠️  有相当比例的参考脸退回了紧裁剪兜底（说明视频没打开），"
+              "这些图尺度与预训练差 2.2 倍；排查视频路径后用 FORCE_FEATS=1 重跑")
+    if padded > max(10, 0.02 * max(written, 1)):
+        print("⚠️  有相当比例需要补边才检到脸（说明裁剪留白不足），确认 --margin-scale 是否生效")
     for message in failures[:20]:
         print(f"  [failed] {message}")
     if len(failures) > 20:

@@ -141,7 +141,9 @@ if [[ $RUN_META -eq 1 ]]; then
     echo "==> [2/3] 生成 meta CSV"
     LIST_ARGS=()
     if [[ -n "$CLIP_LIST" ]]; then
-      LIST_ARGS=(--list "$CLIP_LIST" --list-base "${LIST_BASE:-$ROOT_DIR}")
+      # 列表里的相对路径默认相对于「视频根目录」（例如 `part_001/ab/cd/<hash>`）；
+      # 转换脚本在基准明显不对时会自动探测并打印提示
+      LIST_ARGS=(--list "$CLIP_LIST" --list-base "${LIST_BASE:-$VIDEO_ROOT}")
     fi
     "$PYTHON_BIN" dataset/build_meta_from_avannotate.py \
       --annotation-root "$ANN_ROOT" \

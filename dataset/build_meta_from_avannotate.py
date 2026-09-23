@@ -209,28 +209,52 @@ def build_caption(annotation: dict, window_start_s: float, window_end_s: float,
     return " ".join(parts)
 
 
-def build_video_index(list_path: Path | None, list_base: Path, exts=VIDEO_EXTS):
-    """`video_id -> 绝对视频路径`（列表文件优先），以及列表里没找到文件的那些行。
-
-    视频可以带扩展名也可以不带（`<id>.mp4` 与 `<id>` 都接受）。
-    """
+def _index_with_base(lines: list[str], base: Path, exts):
     index: dict[str, Path] = {}
     unresolved: list[str] = []
-    if list_path is None:
-        return index, unresolved
-    for line in list_path.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line:
-            continue
+    for line in lines:
         path = Path(line)
         if not path.is_absolute():
-            path = list_base / path
+            path = base / path
         resolved = resolve_video_path(path, exts)
         if resolved is None:
             unresolved.append(line)
             continue
         index[video_id_of(resolved, exts)] = resolved.resolve()
     return index, unresolved
+
+
+def build_video_index(list_path: Path | None, list_base: Path, video_root: Path, exts=VIDEO_EXTS):
+    """`video_id -> 绝对视频路径`（列表文件优先）、没找到的行，以及实际使用的基准目录。
+
+    列表里的相对路径按 `--list-base` 解析；若一行都命中不了，会依次试「视频根目录」和
+    「列表文件所在目录」，用命中最多的那个（并打印提示），避免基准设错导致整批样本被判 missing。
+    视频可以带扩展名也可以不带（`<id>.mp4` 与 `<id>` 都接受）。
+    """
+    if list_path is None:
+        return {}, [], list_base
+
+    lines = [line.strip() for line in list_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    if not lines:
+        return {}, [], list_base
+
+    candidates: list[Path] = []
+    for base in (list_base, video_root, list_path.parent):
+        if base not in candidates:
+            candidates.append(base)
+
+    best = None
+    for base in candidates:
+        index, unresolved = _index_with_base(lines, base, exts)
+        if best is None or len(index) > len(best[1]):
+            best = (base, index, unresolved)
+        if len(unresolved) == 0:
+            break
+    base, index, unresolved = best
+    if base != list_base and index:
+        print(f"[提示] --list 的相对路径按 {list_base} 解析不到文件，已改按 {base} 解析"
+              f"（命中 {len(index)}/{len(lines)} 行）；可用 --list-base 固定")
+    return index, unresolved, base
 
 
 def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: int, num_frames: int,
@@ -350,10 +374,10 @@ def main() -> None:
         annotation_dirs = annotation_dirs[: args.limit]
 
     video_exts = tuple(e.strip() for e in args.video_exts.split(",") if e.strip())
-    video_index, unresolved = build_video_index(args.list, args.list_base, video_exts)
+    video_index, unresolved, list_base = build_video_index(args.list, args.list_base, args.video_root, video_exts)
 
     print(f"标注目录 {len(annotation_dirs)} 个，来自 --list 的视频 {len(video_index)} 个"
-          f"（--list 里有 {len(unresolved)} 行没找到文件）")
+          f"（--list 里有 {len(unresolved)} 行没找到文件，基准目录 {list_base}）")
     for line in unresolved[:3]:
         print(f"  [list 未解析] {line}")
     if len(unresolved) > 3:

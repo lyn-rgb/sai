@@ -64,6 +64,10 @@
 
 三个根目录互相独立，全部用绝对路径：
 
+> **列表里的相对路径基准**：默认按「视频根目录」解析（例如列表写 `part_001/ab/cd/<hash>`，视频在
+> `<video_root>/part_001/ab/cd/<hash>`）。若基准不对，转换脚本会自动改试「视频根目录 / 列表所在目录」
+> 并在开头打印提示，也可以用 `--list-base` 固定。
+
 ```bash
 # 1) 参考人脸特征（antelopev2，必须）
 python dataset/extract_ref_face_feats.py \

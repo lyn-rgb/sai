@@ -95,6 +95,16 @@ NUM_PROCESSES=$((NUM_MACHINES * NPROC_PER_NODE))
 # 有效 batch ≈ 128 条样本（B=1 × 进程数 × 累积步数），与 train_*.sh 的 (32/N)*4 等价
 GRAD_ACC_STEPS=$((128 / NUM_PROCESSES)); [[ $GRAD_ACC_STEPS -ge 1 ]] || GRAD_ACC_STEPS=1
 
+LIST_ARGS=()
+if [[ -n "$CLIP_LIST" ]]; then
+  # 列表里的相对路径默认相对于「视频根目录」（例如 `part_001/ab/cd/<hash>`）；
+  # 转换脚本在基准明显不对时会自动探测并打印提示
+  LIST_ARGS=(--list "$CLIP_LIST" --list-base "${LIST_BASE:-$VIDEO_ROOT}")
+fi
+FILTER_ARGS=()
+[[ "$ALLOW_QA_FAIL" == "1" ]] && FILTER_ARGS+=(--no-require-qa-pass)
+[[ "$ALLOW_OFFSCREEN_SPEECH" == "1" ]] && FILTER_ARGS+=(--allow-offscreen-speech)
+
 echo "============================== 预检 =============================="
 echo "标注根      : $ANN_ROOT"
 echo "视频根      : $VIDEO_ROOT"
@@ -131,10 +141,13 @@ if [[ $RUN_FEATS -eq 1 ]]; then
   OVERWRITE_ARGS=()
   [[ "${FORCE_FEATS:-0}" == "1" ]] && OVERWRITE_ARGS=(--overwrite)
   echo "==> [1/3] 提取参考人脸特征（antelopev2，增量；已有 $FEAT_COUNT 个 .pt，FORCE_FEATS=1 可重算）"
+  echo "         从视频按 2.2 倍留白重裁参考脸（与预训练/推理的裁剪比例一致）"
   "$PYTHON_BIN" dataset/extract_ref_face_feats.py \
     --annotation-root "$ANN_ROOT" \
+    --video-root      "$VIDEO_ROOT" \
     --output-dir      "$FEAT_DIR" \
     --face-embedder-ckpt "$FACE_EMBEDDER_CKPT" \
+    ${LIST_ARGS[@]+"${LIST_ARGS[@]}"} \
     ${OVERWRITE_ARGS[@]+"${OVERWRITE_ARGS[@]}"}
   FEAT_COUNT=$(find "$FEAT_DIR" -maxdepth 1 -name '*.pt' | wc -l | tr -d ' ')
   [[ "$FEAT_COUNT" -gt 0 ]] || fail "没有生成任何参考人脸特征，检查 $ANN_ROOT/*/s3-cluster/faces/"
@@ -147,15 +160,6 @@ if [[ $RUN_META -eq 1 ]]; then
   else
     mkdir -p "$META_DIR"
     echo "==> [2/3] 生成 meta CSV"
-    LIST_ARGS=()
-    if [[ -n "$CLIP_LIST" ]]; then
-      # 列表里的相对路径默认相对于「视频根目录」（例如 `part_001/ab/cd/<hash>`）；
-      # 转换脚本在基准明显不对时会自动探测并打印提示
-      LIST_ARGS=(--list "$CLIP_LIST" --list-base "${LIST_BASE:-$VIDEO_ROOT}")
-    fi
-    FILTER_ARGS=()
-    [[ "$ALLOW_QA_FAIL" == "1" ]] && FILTER_ARGS+=(--no-require-qa-pass)
-    [[ "$ALLOW_OFFSCREEN_SPEECH" == "1" ]] && FILTER_ARGS+=(--allow-offscreen-speech)
     "$PYTHON_BIN" dataset/build_meta_from_avannotate.py \
       --annotation-root "$ANN_ROOT" \
       --video-root      "$VIDEO_ROOT" \

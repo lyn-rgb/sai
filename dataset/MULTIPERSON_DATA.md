@@ -69,9 +69,11 @@
 > 并在开头打印提示，也可以用 `--list-base` 固定。
 
 ```bash
-# 1) 参考人脸特征（antelopev2，必须）
+# 1) 参考人脸（从视频按 2.2 倍留白重裁）+ antelopev2 特征
 python dataset/extract_ref_face_feats.py \
     --annotation-root /abs/.../annotation_examples \
+    --video-root      /abs/.../clips \
+    --list            /abs/.../fids.txt \
     --output-dir      /abs/.../ref_feats \
     --face-embedder-ckpt ./ckpts/InsightFace
 
@@ -84,6 +86,13 @@ python dataset/build_meta_from_avannotate.py \
     --list /abs/.../examples.txt --list-base . \
     --n-refs 2 --num-frames 121 --ref-audio-seconds 1.0
 ```
+
+> **参考脸为什么不直接用 `s3-cluster/faces/F00X.jpg`**：那是紧贴人脸框的裁剪（实测 76×99 ~ 168×256，
+> 等于人脸框本身）。两个问题：① 检测器（SCRFD）在"满屏都是脸"的图上经常检不到脸，会直接报
+> `No face detected`；② 预训练、训练预处理（`preprocess.py`）与推理（`get_face_emb`）用的都是
+> **2.2 倍留白**的裁剪（脸占画面约 45%），紧裁剪的尺度差了 2.2 倍。
+> 所以提取器改为：按 `s2-tracks` 轨迹里质量最好的一帧，从视频裁 2.2 倍留白并缩放到 512×512，
+> 存到 `<feat_dir>/faces/<video_id>_<F00X>.jpg`，转换脚本优先用它（拿不到视频时才退回紧裁剪）。
 
 转换脚本做的事：读 `s11-compose/annotation.json`（utterances/word 时间戳/镜头描述）、`s7-tse/segments.json`
 （每人分离后的干净语音）、`s6-associate` + `s10-caption` + `qa/report.json`，然后

@@ -280,10 +280,13 @@ def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: in
     # （否则补齐特征后各桶的计数会大幅漂移，看不出真实瓶颈）
     face_paths, feat_paths, spk_paths, spk_spans = [], [], [], []
     for face_id, spans in segments_by_person.items():
-        face_path = annotation_dir / "s3-cluster" / "faces" / f"{face_id}.jpg"
+        # 参考图优先用提取器产出的「2.2 倍留白」裁剪（与预训练/推理的裁剪比例一致），
+        # 没有则退回标注里的紧裁剪（紧裁剪尺度差 2.2 倍，仅作兜底）
+        margin_face = feat_dir / "faces" / f"{video_path.stem}_{face_id}.jpg"
+        face_path = margin_face if margin_face.is_file() else (annotation_dir / "s3-cluster" / "faces" / f"{face_id}.jpg")
         feat_path = feat_dir / f"{video_path.stem}_{face_id}.pt"
         if not face_path.is_file():
-            return None, f"missing_file: no reference face {face_path.name}"
+            return None, f"missing_file: no reference face for {face_id} (neither the margin crop nor s3-cluster)"
         if not feat_path.is_file():
             return None, (f"missing_file: no reference features {feat_path.name} - run "
                           f"`dataset/extract_ref_face_feats.py` over the whole corpus first")

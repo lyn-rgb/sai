@@ -12,7 +12,7 @@
 
 | 列 | 必需 | 说明 |
 |---|---|---|
-| `video_path` | ✅ | 目标视频，**建议绝对路径**（`osp.join(data_root, abs)` 会直接用绝对路径） |
+| `video_path` | ✅ | 目标视频，**建议绝对路径**（`osp.join(data_root, abs)` 会直接用绝对路径）；带不带扩展名都可以（无扩展名时 decord 会按字节读） |
 | `audio_path` | ✅ | 目标音频（16k 单声道混音），同样建议绝对路径 |
 | `caption` | ✅ | 训练 prompt，`<S>…<E>` 包裹台词 |
 | `num_frames` | ✅ | 源视频帧数，仅用于 dataset 的最低长度过滤 |

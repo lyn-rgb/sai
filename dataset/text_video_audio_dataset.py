@@ -21,6 +21,18 @@ import torchvision.transforms as transforms
 from . import video_transforms
 
 
+# 语料里的视频常常没有扩展名（例如 `.../clips/<hash>`）；decord 会按扩展名推断容器格式，
+# 所以无扩展名的文件直接喂字节，避免开不了
+VIDEO_EXTS = {".mp4", ".mkv", ".webm", ".mov", ".avi", ".m4v"}
+
+
+def open_video_reader(video_path):
+    if osp.splitext(str(video_path))[-1].lower() in VIDEO_EXTS:
+        return decord.VideoReader(str(video_path))
+    with open(video_path, "rb") as f:
+        return decord.VideoReader(f.read())
+
+
 class TextAudioVideoDataset(Dataset):
     """ NOTE, only supports batch size = 1 yet.
     """
@@ -88,7 +100,7 @@ class TextAudioVideoDataset(Dataset):
         return video_transform
     
     def load_video(self, video_path, bbox=None, target_start_idx=None):
-        video_reader = decord.VideoReader(video_path)
+        video_reader = open_video_reader(video_path)
         source_fps = video_reader.get_avg_fps()
         frame_index_delta = source_fps / self.target_fps    # 48 / 24 = 2
         video_length = len(video_reader)                    # 240
@@ -391,7 +403,7 @@ class TextAudioVideoFaceDataset(TextAudioVideoDataset):
                 face = face.expand(3, -1, -1)
             face = face.unsqueeze(0)                            # 1,C,H,W
         else:
-            face_reader = decord.VideoReader(str(face_path))
+            face_reader = open_video_reader(face_path)
             face = face_reader.get_batch([ref_idx]).permute(0, 3, 1, 2)  # 1,C,H,W
         face = self.get_transform(512, 512, 512, 512)(face)     # 1,3,512,512, [-1, 1]
 

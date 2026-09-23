@@ -19,10 +19,12 @@ Input layout (one directory per video, as produced by the annotation pipeline):
     <annotation_root>/<video_id>/s11-compose/annotation.json  utterances + global/shot captions
     <annotation_root>/<video_id>/s11-compose/qa/report.json   quality gates and metrics
 
-The video is taken from `<video_root>/<video_id>.mp4` (or from `--list`); the annotation's own
-`video.path` is the producer's cluster path and is not usable locally. **Every path written into
-the CSV is absolute**, so the data root and the annotation root can live in different places and
-`--data_root` at training time is only a fallback for relative rows.
+The video is taken from `<video_root>/<video_id>` (or `<video_id>.<ext>`, or from `--list`) - the
+clips of the OpenHumanVid style corpora carry **no file extension**, so both forms are accepted and
+`--video-exts` controls which suffixes are tried. The annotation's own `video.path` is the
+producer's cluster path and is not usable locally. **Every path written into the CSV is absolute**,
+so the data root and the annotation root can live in different places and `--data_root` at training
+time is only a fallback for relative rows.
 
 Conventions (see `dataset/MULTIPERSON_DATA.md`):
 - Slot order = face id order (F001 -> slot 0, F002 -> slot 1, ...). Only identities that both speak
@@ -50,10 +52,33 @@ COLUMNS = [
     "face_paths", "feat_paths", "spk_audio_paths", "spk_segments", "target_start_frame",
 ]
 
+# 语料里的视频常常不带扩展名（例如 `.../clips/<hash>`），这里按「原样 → 补扩展名 → 去扩展名」依次尝试
+VIDEO_EXTS = (".mp4", ".mkv", ".webm", ".mov", ".avi", ".m4v")
+
 
 def load_json(path: Path):
     with open(path, encoding="utf-8") as f:
         return json.load(f)
+
+
+def video_id_of(path: Path, exts=VIDEO_EXTS) -> str:
+    """`<id>.mp4` 和无扩展名的 `<id>` 都要映射到 `<id>`。"""
+    return path.stem if path.suffix.lower() in exts else path.name
+
+
+def resolve_video_path(path: Path, exts=VIDEO_EXTS):
+    """定位视频文件，兼容「列表写了扩展名但文件没有」与「列表没写扩展名」两种情况。"""
+    if path.is_file():
+        return path
+    if path.suffix.lower() in exts:
+        bare = path.with_suffix("")
+        if bare.is_file():
+            return bare
+    for ext in exts:
+        candidate = path.with_name(path.name + ext)
+        if candidate.is_file():
+            return candidate
+    return None
 
 
 def resampled_frame_count(probe: dict, target_fps: float) -> int:
@@ -184,11 +209,15 @@ def build_caption(annotation: dict, window_start_s: float, window_end_s: float,
     return " ".join(parts)
 
 
-def build_video_index(list_path: Path | None, list_base: Path, video_root: Path) -> dict[str, Path]:
-    """video_id -> absolute video path, from the list file when given, else `<video_root>/<id>.mp4`."""
+def build_video_index(list_path: Path | None, list_base: Path, exts=VIDEO_EXTS):
+    """`video_id -> 绝对视频路径`（列表文件优先），以及列表里没找到文件的那些行。
+
+    视频可以带扩展名也可以不带（`<id>.mp4` 与 `<id>` 都接受）。
+    """
     index: dict[str, Path] = {}
+    unresolved: list[str] = []
     if list_path is None:
-        return index
+        return index, unresolved
     for line in list_path.read_text(encoding="utf-8").splitlines():
         line = line.strip()
         if not line:
@@ -196,9 +225,12 @@ def build_video_index(list_path: Path | None, list_base: Path, video_root: Path)
         path = Path(line)
         if not path.is_absolute():
             path = list_base / path
-        if path.is_file():
-            index[path.stem] = path.resolve()
-    return index
+        resolved = resolve_video_path(path, exts)
+        if resolved is None:
+            unresolved.append(line)
+            continue
+        index[video_id_of(resolved, exts)] = resolved.resolve()
+    return index, unresolved
 
 
 def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: int, num_frames: int,
@@ -212,7 +244,7 @@ def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: in
     qa_path = annotation_dir / "s11-compose" / "qa" / "report.json"
     for path in (probe_path, audio_path, annotation_path, segments_path):
         if not path.is_file():
-            return None, f"missing {path.relative_to(annotation_dir)}"
+            return None, f"missing_file: {path.relative_to(annotation_dir)}"
 
     probe = load_json(probe_path)
     annotation = load_json(annotation_path)
@@ -221,19 +253,19 @@ def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: in
 
     if require_qa_pass and qa and not qa.get("passed", False):
         failed = [g["name"] for g in qa.get("gates", []) if not g.get("passed", True)]
-        return None, f"qa failed: {', '.join(failed) or 'unknown gate'}"
+        return None, f"qa_failed: {', '.join(failed) or 'unknown gate'}"
     if not allow_offscreen_speech and qa.get("notes", {}).get("offscreen_speakers", 0):
-        return None, f"{qa['notes']['offscreen_speakers']} offscreen speaker(s)"
+        return None, f"offscreen_speech: {qa['notes']['offscreen_speakers']} offscreen speaker(s)"
 
     segments_by_person = speaking_identities(segments)
     if len(segments_by_person) != n_refs:
-        return None, f"{len(segments_by_person)} speaking identit(ies) with audio, n_refs={n_refs}"
+        return None, f"identity_count: {len(segments_by_person)} speaking identit(ies) with audio, n_refs={n_refs}"
 
     total_resampled = resampled_frame_count(probe, target_fps)
     start_frame = choose_window(segments_by_person, total_resampled, num_frames, target_fps, ref_seconds,
                                 min_target_seconds=min_target_seconds)
     if start_frame is None:
-        return None, (f"no {num_frames}-frame window with >= {min_target_seconds:.1f}s of speech inside "
+        return None, (f"no_window: no {num_frames}-frame window with >= {min_target_seconds:.1f}s of speech inside "
                       f"and {ref_seconds:.1f}s of reference audio outside for every person "
                       f"({total_resampled} frames available)")
 
@@ -242,15 +274,15 @@ def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: in
         face_path = annotation_dir / "s3-cluster" / "faces" / f"{face_id}.jpg"
         feat_path = feat_dir / f"{video_path.stem}_{face_id}.pt"
         if not face_path.is_file():
-            return None, f"missing reference face {face_path.name}"
+            return None, f"missing_file: no reference face {face_path.name}"
         if not feat_path.is_file():
-            return None, (f"missing reference features {feat_path} - run "
+            return None, (f"missing_file: no reference features {feat_path} - run "
                           f"`dataset/extract_ref_face_feats.py` first")
         audio_files = []
         for span in spans:
             segment_path = annotation_dir / span["audio"]
             if not segment_path.is_file():
-                return None, f"missing extracted speech {span['audio']}"
+                return None, f"missing_file: no extracted speech {span['audio']}"
             audio_files.append(str(segment_path.resolve()))
         face_paths.append(str(face_path.resolve()))
         feat_paths.append(str(feat_path.resolve()))
@@ -262,7 +294,7 @@ def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: in
     valid_face_ids = set(segments_by_person)
     turns = caption_utterances(annotation, window_start_s, window_end_s, valid_face_ids, dialogue_in_window)
     if not turns:
-        return None, "no dialogue of a referenced person inside the target window"
+        return None, "no_dialogue: no utterance of a referenced person inside the target window"
     caption = build_caption(annotation, window_start_s, window_end_s, valid_face_ids, dialogue_in_window)
 
     row = {
@@ -284,7 +316,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="avannotate -> multi-person training meta CSV.")
     parser.add_argument("--annotation-root", type=Path, required=True)
     parser.add_argument("--video-root", type=Path, required=True,
-                        help="directory holding `<video_id>.mp4`")
+                        help="directory holding the videos, `<video_id>.mp4` or extension-less `<video_id>`")
+    parser.add_argument("--video-exts", default=",".join(VIDEO_EXTS),
+                        help="extensions tried when a video path does not exist as written")
     parser.add_argument("--feat-dir", type=Path, required=True,
                         help="output of `dataset/extract_ref_face_feats.py`")
     parser.add_argument("--output", type=Path, required=True)
@@ -315,7 +349,15 @@ def main() -> None:
     if args.limit is not None:
         annotation_dirs = annotation_dirs[: args.limit]
 
-    video_index = build_video_index(args.list, args.list_base, args.video_root)
+    video_exts = tuple(e.strip() for e in args.video_exts.split(",") if e.strip())
+    video_index, unresolved = build_video_index(args.list, args.list_base, video_exts)
+
+    print(f"标注目录 {len(annotation_dirs)} 个，来自 --list 的视频 {len(video_index)} 个"
+          f"（--list 里有 {len(unresolved)} 行没找到文件）")
+    for line in unresolved[:3]:
+        print(f"  [list 未解析] {line}")
+    if len(unresolved) > 3:
+        print(f"  … 还有 {len(unresolved) - 3} 行")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     kept, dropped = 0, []
@@ -324,9 +366,12 @@ def main() -> None:
         writer.writeheader()
         for annotation_dir in annotation_dirs:
             video_id = annotation_dir.name
-            video_path = video_index.get(video_id) or (args.video_root / f"{video_id}.mp4")
-            if not video_path.is_file():
-                dropped.append((video_id, f"missing video {video_path}"))
+            video_path = video_index.get(video_id)
+            if video_path is None:
+                # 没在 --list 里（或没给 --list）：在 video-root 下找 `<id>` / `<id>.<ext>`
+                video_path = resolve_video_path(args.video_root / video_id, video_exts)
+            if video_path is None:
+                dropped.append((video_id, f"missing_video: {args.video_root / video_id}[.mp4]"))
                 continue
             row, reason = build_row(
                 annotation_dir=annotation_dir,
@@ -348,8 +393,15 @@ def main() -> None:
             kept += 1
 
     print(f"Wrote {kept} row(s) to {args.output}, dropped {len(dropped)}")
-    for video_id, reason in dropped:
-        print(f"  [dropped] {video_id}: {reason}")
+    if dropped:
+        # 同一类原因只打一行（几千条同质日志没有意义），每类给两个例子
+        grouped: dict[str, list[tuple[str, str]]] = {}
+        for video_id, reason in dropped:
+            grouped.setdefault(reason.split(":", 1)[0], []).append((video_id, reason))
+        for category, items in sorted(grouped.items(), key=lambda kv: -len(kv[1])):
+            print(f"  [dropped {len(items):>5}] {category}")
+            for video_id, reason in items[:2]:
+                print(f"            e.g. {video_id}: {reason}")
 
 
 if __name__ == "__main__":

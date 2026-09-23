@@ -173,18 +173,18 @@ if [[ $RUN_TRAIN -eq 1 ]]; then
   OUTPUT_PATH="$OUTPUT_DIR/$(date '+%Y-%m-%d_%H-%M-%S')_multiperson_n${N_REFS}_bs-$(printf '%02d' "$NUM_PROCESSES")"
   mkdir -p "$OUTPUT_PATH"
   RUN_CONFIG="$OUTPUT_PATH/run_config.yaml"
-  "$PYTHON_BIN" - "$CONFIG" "$RUN_CONFIG" "$N_REFS" "$REF_AUDIO_FRAMES" <<'PY'
+  "$PYTHON_BIN" - "$CONFIG" "$RUN_CONFIG" "$N_REFS" "$REF_AUDIO_FRAMES" "$CKPT_DIR" <<'PY'
 from pathlib import Path
 import sys
 
-src, dst, n_refs, ref_frames = sys.argv[1:5]
-overrides = {"n_refs": n_refs, "ref_audio_frames": ref_frames}
+src, dst, n_refs, ref_frames, ckpt_dir = sys.argv[1:6]
+overrides = {"n_refs": n_refs, "ref_audio_frames": ref_frames, "ckpt_dir": ckpt_dir}
 lines = []
 for line in Path(src).read_text(encoding="utf-8").splitlines():
     key = line.split(":", 1)[0].strip() if ":" in line and not line.lstrip().startswith("#") else None
     lines.append(f"{key}: {overrides[key]}" if key in overrides else line)
 Path(dst).write_text("\n".join(lines) + "\n", encoding="utf-8")
-print(f"运行配置已写入 {dst}（n_refs={n_refs}, ref_audio_frames={ref_frames}）")
+print(f"运行配置已写入 {dst}（n_refs={n_refs}, ref_audio_frames={ref_frames}, ckpt_dir={ckpt_dir}）")
 PY
 
   echo "==> [3/3] 开始训练，输出目录：$OUTPUT_PATH"

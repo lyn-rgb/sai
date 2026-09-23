@@ -14,11 +14,11 @@ set -euo pipefail
 
 # ============================== 配置区 ==============================
 # --- 1. 数据（三个根目录互相独立）---
-ANN_ROOT=/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/ann
-VIDEO_ROOT=/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/clips
-CLIP_LIST=$VIDEO_ROOT/examples.txt        # 数据列表（每行一个视频路径）；留空则用 $VIDEO_ROOT/<id>.mp4
-FEAT_DIR=/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/ref_feats
-META_DIR=/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/meta/multiperson_n2
+ANN_ROOT=/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/avannotate_out/work
+VIDEO_ROOT=/inspire/qb-ilm/project/qproject-assement/zhangkaipeng-24043/lizhen1/datasets/redrem/OpenHumanVid/clips
+CLIP_LIST=/inspire/hdd/global_user/zhangkaipeng-24043/lizhen1/code/scripts/fids_over5s_two_face_en_2spk.txt
+FEAT_DIR=/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/train_multiperson/ref_feats
+META_DIR=/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/train_multiperson/multiperson_n2
 
 # --- 2. 训练目标：这三项决定 yield，转换脚本会打印每条样本的丢弃原因 ---
 N_REFS=2                 # 每条样本的参考人数，必须与数据里「既说话又有音频」的人数一致
@@ -26,9 +26,9 @@ NUM_FRAMES=121           # 目标窗口帧数 @24fps（121 = 5.0s）
 REF_AUDIO_SECONDS=1.0    # 每人参考音频长度；窗口越长/参考越长，可用样本越少
 
 # --- 3. 训练 ---
-START_CKPT=/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/logs/sai_1M_contrastive_cropped_gpus_32/ckpt/step-94000.safetensors
-CKPT_DIR=./ckpts                                    # 内含 Ovi/model.safetensors 与 InsightFace/
-FACE_EMBEDDER_CKPT=./ckpts/InsightFace
+CKPT_DIR=/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/ckpts   # 内含 Ovi/model.safetensors 与 InsightFace/
+FACE_EMBEDDER_CKPT=$CKPT_DIR/InsightFace
+START_CKPT=/inspire/qb-ilm/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/logs/baseline/2026-01-11_sai_1M_cropped_ip-embs_self-lora_bs-16/ckpt/step-98000.safetensors
 CONFIG=configs/train/model_multiperson.yaml
 OUTPUT_DIR=./logs
 LEARNING_RATE=2.5e-5

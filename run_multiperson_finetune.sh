@@ -41,9 +41,15 @@ FACE_EMBEDDER_CKPT=$CKPT_DIR/InsightFace
 START_CKPT=/inspire/qb-ilm/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/logs/baseline/2026-01-11_sai_1M_cropped_ip-embs_self-lora_bs-16/ckpt/step-98000.safetensors
 CONFIG=configs/train/model_multiperson.yaml
 OUTPUT_DIR=./logs
-LEARNING_RATE=2.5e-5
-NUM_EPOCHS=3
-SAVE_STEPS=2000
+# 微调超参。基线 recipe（train_single_nodes.sh）是 5e-5 / 5 epoch（从零学 LoRA + ip 层）；
+# 这里是「已训好的单人 ckpt 上继续微调 + 20 epoch」，所以学习率降下来（AdamW 单参数组，
+# ConstantLR 恒定不衰减，所以整体越训越久越要压低）。都可用环境变量覆盖，例如：
+#   LEARNING_RATE=5e-6 NUM_EPOCHS=30 bash run_multiperson_finetune.sh
+LEARNING_RATE=${LEARNING_RATE:-1e-5}
+NUM_EPOCHS=${NUM_EPOCHS:-20}
+# 注意 train.py 的 num_steps 数是 **micro-batch**（含梯度累积的中间步），不是优化器步：
+# 每 epoch 的 micro-step ≈ 样本数 / 进程数。数据量很大时按此调大，免得 ckpt 存太多。
+SAVE_STEPS=${SAVE_STEPS:-2000}
 GRAD_ACC_STEPS=4               # 梯度累积步数；有效 batch = 进程数 × 该值（每卡 batch=1）
 CONDA_ENV=${CONDA_ENV:-sai}    # 留空则不动 conda 环境
 STEPS=${STEPS:-all}            # all | feats | meta | train（可用环境变量覆盖）
@@ -124,6 +130,7 @@ QA_NOTE="严格（丢弃 QA 未通过样本）"; [[ "$ALLOW_QA_FAIL" == "1" ]] &
 OFFSCREEN_NOTE="丢弃含画外人声的样本"; [[ "$ALLOW_OFFSCREEN_SPEECH" == "1" ]] && OFFSCREEN_NOTE="保留含画外人声的样本"
 echo "品质门      : QA ${QA_NOTE} | ${OFFSCREEN_NOTE}"
 echo "机器/进程   : ${NUM_MACHINES} 台 × ${NPROC_PER_NODE} = ${NUM_PROCESSES} | 梯度累积: ${GRAD_ACC_STEPS}（有效 batch ≈ ${EFFECTIVE_BATCH} 样本）"
+echo "训练超参    : LR=${LEARNING_RATE} | epoch=${NUM_EPOCHS} | 每 ${SAVE_STEPS} micro-step 存一次 ckpt（结束也会存）"
 echo "加速配置    : $ACCEL_CFG"
 echo "=================================================================="
 

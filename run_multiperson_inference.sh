@@ -39,6 +39,8 @@ SKIP_EXISTING=${SKIP_EXISTING:-0}   # 1 = 跳过已生成的输出
 # 参考图是否再检一次脸：默认 0（我们的参考图就是人脸裁剪，与训练条件一致，也不需要裁剪权重）。
 # 置 1 需要 crop_insightface_root（含 models/buffalo_l）+ crop_landmark_ckpt_path，否则会直接报错。
 CROP_FACE=${CROP_FACE:-0}
+# 1（默认）= 推理结束后把参考脸/参考音频/caption/超参快照归档到结果目录（<output_dir>/inputs/）
+DUMP_INPUTS=${DUMP_INPUTS:-1}
 CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
 PYTHON_BIN=${PYTHON_BIN:-}
 # ====================================================================
@@ -227,4 +229,11 @@ if [[ "$PREPARE_ONLY" == "1" ]]; then
   exit 0
 fi
 CUDA_VISIBLE_DEVICES="$CUDA_VISIBLE_DEVICES" "$PYTHON_BIN" new_infer.py --config-file "$RUN_CONFIG"
-echo "完成。输出在 $OUTPUT_DIR/ip_image_True_ip_audio_True_N${N_REFS}/ 下（<序号>_crop-True_<prompt>_<HxW>_<seed>_0.mp4）"
+
+# 归档输入：结果文件夹里同时留一份参考人脸/参考音频/caption，脚本不用再回头找 testdata
+if [[ "$DUMP_INPUTS" == "1" ]]; then
+  echo "==> 归档参考素材到结果目录"
+  "$PYTHON_BIN" evaluation/dump_inference_inputs.py \
+    --prompt-csv "$PROMPT_CSV" --output-dir "$OUTPUT_DIR" --run-config "$RUN_CONFIG"
+fi
+echo "完成。输出在 ${OUTPUT_DIR}/ip_image_True_ip_audio_True_N${N_REFS}/ 下（<序号>_crop-True_<prompt>_<HxW>_<seed>_0.mp4）"

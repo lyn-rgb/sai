@@ -37,6 +37,7 @@ OUTPUT_DIR=./logs
 LEARNING_RATE=2.5e-5
 NUM_EPOCHS=3
 SAVE_STEPS=2000
+GRAD_ACC_STEPS=4               # 梯度累积步数；有效 batch = 进程数 × 该值（每卡 batch=1）
 CONDA_ENV=${CONDA_ENV:-sai}    # 留空则不动 conda 环境
 STEPS=${STEPS:-all}            # all | feats | meta | train（可用环境变量覆盖）
 # ====================================================================
@@ -92,8 +93,8 @@ else
 fi
 [[ "$NPROC_PER_NODE" -ge 1 ]] || fail "没有检测到 GPU（NPROC_PER_NODE=${NPROC_PER_NODE}）"
 NUM_PROCESSES=$((NUM_MACHINES * NPROC_PER_NODE))
-# 有效 batch ≈ 128 条样本（B=1 × 进程数 × 累积步数），与 train_*.sh 的 (32/N)*4 等价
-GRAD_ACC_STEPS=$((128 / NUM_PROCESSES)); [[ $GRAD_ACC_STEPS -ge 1 ]] || GRAD_ACC_STEPS=1
+# 每卡 batch = 1（train.py 的 DataLoader 不设 batch_size），有效 batch = 进程数 × 梯度累积步数
+EFFECTIVE_BATCH=$((NUM_PROCESSES * GRAD_ACC_STEPS))
 
 LIST_ARGS=()
 if [[ -n "$CLIP_LIST" ]]; then
@@ -115,7 +116,7 @@ echo "参考人数    : $N_REFS | 目标窗口: $NUM_FRAMES 帧 | 参考音频: 
 QA_NOTE="严格（丢弃 QA 未通过样本）"; [[ "$ALLOW_QA_FAIL" == "1" ]] && QA_NOTE="放宽（保留 QA 未通过样本）"
 OFFSCREEN_NOTE="丢弃含画外人声的样本"; [[ "$ALLOW_OFFSCREEN_SPEECH" == "1" ]] && OFFSCREEN_NOTE="保留含画外人声的样本"
 echo "品质门      : QA ${QA_NOTE} | ${OFFSCREEN_NOTE}"
-echo "机器/进程   : ${NUM_MACHINES} 台 × ${NPROC_PER_NODE} = ${NUM_PROCESSES} | 梯度累积: ${GRAD_ACC_STEPS}"
+echo "机器/进程   : ${NUM_MACHINES} 台 × ${NPROC_PER_NODE} = ${NUM_PROCESSES} | 梯度累积: ${GRAD_ACC_STEPS}（有效 batch ≈ ${EFFECTIVE_BATCH} 样本）"
 echo "加速配置    : $ACCEL_CFG"
 echo "=================================================================="
 

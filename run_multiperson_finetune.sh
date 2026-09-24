@@ -47,9 +47,10 @@ OUTPUT_DIR=./logs
 #   LEARNING_RATE=5e-6 NUM_EPOCHS=30 bash run_multiperson_finetune.sh
 LEARNING_RATE=${LEARNING_RATE:-1e-5}
 NUM_EPOCHS=${NUM_EPOCHS:-20}
-# 注意 train.py 的 num_steps 数是 **micro-batch**（含梯度累积的中间步），不是优化器步：
-# 每 epoch 的 micro-step ≈ 样本数 / 进程数。数据量很大时按此调大，免得 ckpt 存太多。
-SAVE_STEPS=${SAVE_STEPS:-2000}
+# 存档间隔，单位是 **micro-batch**（不是优化器步，也不是 epoch）。auto = 训练开始前按
+# 「行数 × epoch 数 ÷ 进程数」算出总步数，取 ~8 个中间 ckpt 的间隔（下限 100）。
+# 显式给数字则用它，例如 SAVE_STEPS=500。
+SAVE_STEPS=${SAVE_STEPS:-auto}
 GRAD_ACC_STEPS=4               # 梯度累积步数；有效 batch = 进程数 × 该值（每卡 batch=1）
 CONDA_ENV=${CONDA_ENV:-sai}    # 留空则不动 conda 环境
 STEPS=${STEPS:-all}            # all | feats | meta | train（可用环境变量覆盖）
@@ -130,7 +131,7 @@ QA_NOTE="严格（丢弃 QA 未通过样本）"; [[ "$ALLOW_QA_FAIL" == "1" ]] &
 OFFSCREEN_NOTE="丢弃含画外人声的样本"; [[ "$ALLOW_OFFSCREEN_SPEECH" == "1" ]] && OFFSCREEN_NOTE="保留含画外人声的样本"
 echo "品质门      : QA ${QA_NOTE} | ${OFFSCREEN_NOTE}"
 echo "机器/进程   : ${NUM_MACHINES} 台 × ${NPROC_PER_NODE} = ${NUM_PROCESSES} | 梯度累积: ${GRAD_ACC_STEPS}（有效 batch ≈ ${EFFECTIVE_BATCH} 样本）"
-echo "训练超参    : LR=${LEARNING_RATE} | epoch=${NUM_EPOCHS} | 每 ${SAVE_STEPS} micro-step 存一次 ckpt（结束也会存）"
+echo "训练超参    : LR=${LEARNING_RATE} | epoch=${NUM_EPOCHS} | 存档间隔: ${SAVE_STEPS}（auto = 按数据量定，见下）"
 echo "加速配置    : $ACCEL_CFG"
 echo "=================================================================="
 
@@ -254,6 +255,42 @@ PY
   else
     echo "⚠️  未找到 ${CSV_PARAMS##*/}（旧版 CSV）：无法校验训练参数是否与它匹配；若报『参考音频不足』请 FORCE_META=1 重建"
   fi
+
+  # 存档计划：train.py 的 num_steps 数的是 **micro-batch**（train.py:287 每个 micro-batch 都 +=1，
+  # 不看梯度累积），每个 rank 每 epoch 的 micro-step ≈ 行数 / 进程数。
+  # 存档只在 `num_steps % save_steps == 0` 与训练结束时发生，所以 save_steps 大于总步数就
+  # **只会在训练结束存一次**，中途崩了（OOM/被抢占）则一个 ckpt 都没有 —— 先把这笔账算清楚并打印。
+  TRAIN_ROWS=$("$PYTHON_BIN" -c "import csv;print(sum(1 for _ in csv.DictReader(open('${META_CSV}'))))")
+  MICRO_PER_EPOCH=$(((TRAIN_ROWS + NUM_PROCESSES - 1) / NUM_PROCESSES))
+  TOTAL_MICRO=$((MICRO_PER_EPOCH * NUM_EPOCHS))
+  SAVE_STEPS=$("$PYTHON_BIN" - "$TOTAL_MICRO" "$SAVE_STEPS" <<'PY'
+import sys
+
+total, spec = int(sys.argv[1]), sys.argv[2]
+if spec != "auto":
+    print(spec)
+    raise SystemExit
+# auto：目标 ~8 个中间 ckpt，取整到 1/2/5 × 10^k，下限 100
+target = max(100, total // 8)
+step = 10 ** (len(str(target)) - 1)
+for multiplier in (1, 2, 5, 10):
+    if step * multiplier >= target:
+        print(step * multiplier)
+        break
+PY
+)
+  echo "训练规模    : ${TRAIN_ROWS} 行 / ${NUM_PROCESSES} 进程 → 每 epoch ≈ ${MICRO_PER_EPOCH} micro-step，${NUM_EPOCHS} epoch ≈ ${TOTAL_MICRO} micro-step"
+  if [[ "$TOTAL_MICRO" -lt "$SAVE_STEPS" ]]; then
+    SUGGEST=$((TOTAL_MICRO / 8))
+    [[ "$SUGGEST" -ge 1 ]] || SUGGEST=1
+    echo "⚠️  save_steps=${SAVE_STEPS} > 总步数 ${TOTAL_MICRO}：训练中途不会有任何 ckpt，只在**结束时**存一个；"
+    echo "    中途被抢占就什么都没有。要中途存档请调小，例如 SAVE_STEPS=${SUGGEST} bash $0"
+  else
+    FIRST_EPOCH=1
+    [[ "$MICRO_PER_EPOCH" -gt 0 ]] && FIRST_EPOCH=$(((SAVE_STEPS + MICRO_PER_EPOCH - 1) / MICRO_PER_EPOCH))
+    echo "存档计划    : 每 ${SAVE_STEPS} micro-step 一次 → 中间约 $((TOTAL_MICRO / SAVE_STEPS)) 个 + 结束 1 个；第一次在第 ${SAVE_STEPS} 步（约第 ${FIRST_EPOCH} 个 epoch）"
+  fi
+  echo "ckpt 位置   : ${OUTPUT_DIR}/<本次时间戳>_multiperson_n${N_REFS}_bs-$(printf '%02d' "$NUM_PROCESSES")/ckpt/step-<micro步数>.safetensors"
 
   # 运行配置：把本次的 n_refs / ref_audio_frames / fix_prompt_with_asr 写进去，
   # 保证「转换用的人数与参考长度」和「训练吃的值」永远一致

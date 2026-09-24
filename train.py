@@ -182,12 +182,29 @@ class ModelLogger:
         if save_steps is not None and self.num_steps % save_steps == 0:            
             self.save_model(accelerator, model, f"step-{self.num_steps}.safetensors")            
 
+    def export_state_dict(self, accelerator, model):
+        """The trainable weights to store, with a loud failure if there is nothing to store.
+
+        `export_trainable_state_dict` filters by `requires_grad`, so a config whose `trainable_models`
+        names do not match any module (or a `freeze_except` that froze everything) produces an **empty**
+        dict - and saving it writes a ~0-byte checkpoint that only fails much later, at load time.
+        """
+        state_dict = accelerator.get_state_dict(model)
+        unwrapped = accelerator.unwrap_model(model)
+        state_dict = unwrapped.export_trainable_state_dict(state_dict, remove_prefix=self.remove_prefix_in_ckpt)
+        state_dict = self.state_dict_converter(state_dict)
+        if not state_dict:
+            trainable = len(unwrapped.trainable_param_names())
+            raise RuntimeError(
+                f"没有任何可训练权重可存档（requires_grad=True 的参数个数 = {trainable}）。"
+                f"检查训练配置里的 trainable_models 名字是否与模块或 `WanModel.init_lora` 建出来的"
+                f"子模块同名（freeze_except 只按名字匹配，对不上的会被静默冻结）")
+        return state_dict
+
     def on_epoch_end(self, accelerator, model, epoch_id):
         accelerator.wait_for_everyone()
         if accelerator.is_main_process:
-            state_dict = accelerator.get_state_dict(model)
-            state_dict = accelerator.unwrap_model(model).export_trainable_state_dict(state_dict, remove_prefix=self.remove_prefix_in_ckpt)
-            state_dict = self.state_dict_converter(state_dict)
+            state_dict = self.export_state_dict(accelerator, model)
             os.makedirs(self.output_path, exist_ok=True)
             path = os.path.join(self.output_path, f"epoch-{epoch_id}.safetensors")
             accelerator.save(state_dict, path, safe_serialization=True)
@@ -201,9 +218,7 @@ class ModelLogger:
     def save_model(self, accelerator, model, file_name):
         accelerator.wait_for_everyone()
         if accelerator.is_main_process:
-            state_dict = accelerator.get_state_dict(model)
-            state_dict = accelerator.unwrap_model(model).export_trainable_state_dict(state_dict, remove_prefix=self.remove_prefix_in_ckpt)
-            state_dict = self.state_dict_converter(state_dict)
+            state_dict = self.export_state_dict(accelerator, model)
             os.makedirs(self.output_path, exist_ok=True)
             path = os.path.join(self.output_path, file_name)
             accelerator.save(state_dict, path, safe_serialization=True)

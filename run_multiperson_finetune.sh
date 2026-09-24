@@ -187,6 +187,29 @@ fi
 if [[ $RUN_TRAIN -eq 1 ]]; then
   [[ -f "$META_CSV" ]] || fail "缺少 meta CSV：${META_CSV}（先跑 STEPS=meta）"
 
+  # 参数指纹：CSV 必须是用同一组 n_refs / num_frames / ref_audio_seconds 生成的，
+  # 否则「每人在目标窗口外留够参考音频」的保证不成立，会在训练中途才报错
+  CSV_PARAMS="$META_CSV.params.json"
+  if [[ -f "$CSV_PARAMS" ]]; then
+    PARAM_MISMATCH=$("$PYTHON_BIN" - "$CSV_PARAMS" "$N_REFS" "$NUM_FRAMES" "$REF_AUDIO_SECONDS" <<'PY'
+import json
+import sys
+
+params = json.load(open(sys.argv[1], encoding="utf-8"))
+wanted = {"n_refs": int(sys.argv[2]), "num_frames": int(sys.argv[3]),
+          "ref_audio_seconds": float(sys.argv[4])}
+print("；".join(f"{key}: CSV={params.get(key)} 本次={value}"
+                for key, value in wanted.items() if params.get(key) != value))
+PY
+)
+    if [[ -n "$PARAM_MISMATCH" ]]; then
+      fail "meta CSV 与本次训练参数不一致（${PARAM_MISMATCH}）→ 用 STEPS=meta FORCE_META=1 重建 CSV"
+    fi
+    echo "meta CSV 参数指纹一致 ✓"
+  else
+    echo "⚠️  未找到 ${CSV_PARAMS##*/}（旧版 CSV）：无法校验训练参数是否与它匹配；若报『参考音频不足』请 FORCE_META=1 重建"
+  fi
+
   # 运行配置：把本次的 n_refs / ref_audio_frames / fix_prompt_with_asr 写进去，
   # 保证「转换用的人数与参考长度」和「训练吃的值」永远一致
   OUTPUT_PATH="$OUTPUT_DIR/$(date '+%Y-%m-%d_%H-%M-%S')_multiperson_n${N_REFS}_bs-$(printf '%02d' "$NUM_PROCESSES")"

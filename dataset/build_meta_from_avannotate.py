@@ -424,7 +424,26 @@ def main() -> None:
             writer.writerow(row)
             kept += 1
 
+    # 参数指纹：训练时的 num_frames / ref_audio_seconds / n_refs 必须与生成时一致，
+    # 否则「每人在窗口外留够参考音频」的保证不成立（训练时才报错，很难查）
+    params = {
+        "n_refs": args.n_refs,
+        "num_frames": args.num_frames,
+        "target_fps": args.target_fps,
+        "ref_audio_seconds": args.ref_audio_seconds,
+        "min_target_speech_seconds": args.min_target_speech_seconds,
+        "keep_all_dialogue": args.keep_all_dialogue,
+        "require_qa_pass": not args.no_require_qa_pass,
+        "allow_offscreen_speech": args.allow_offscreen_speech,
+        "kept_rows": kept,
+        "dropped_rows": len(dropped),
+    }
+    params_path = args.output.with_name(args.output.name + ".params.json")
+    params_path.write_text(json.dumps(params, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
     print(f"Wrote {kept} row(s) to {args.output}, dropped {len(dropped)}")
+    print(f"参数指纹 -> {params_path.name} "
+          f"(n_refs={params['n_refs']}, num_frames={params['num_frames']}, ref_audio_seconds={params['ref_audio_seconds']})")
     if dropped:
         # 同一类原因只打一行（几千条同质日志没有意义），每类给两个例子
         grouped: dict[str, list[tuple[str, str]]] = {}

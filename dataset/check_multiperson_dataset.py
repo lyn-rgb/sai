@@ -251,6 +251,26 @@ def main() -> int:
         print(f"❌ 缺少列：{sorted(missing)}")
         return 1
 
+    # 参数指纹：CSV 生成时的 num_frames / ref_audio_seconds / n_refs 与本次不一致时，
+    # 窗口外的参考音频总量必然对不上——先报出来，免得把问题误判成数据集 bug
+    params_path = csv_path.with_name(csv_path.name + ".params.json")
+    if params_path.is_file():
+        params = json.loads(params_path.read_text(encoding="utf-8"))
+        mismatched = [
+            f"{key}={params.get(key)}（CSV）!= {value}（本次）"
+            for key, value in (("n_refs", args.n_refs), ("num_frames", args.num_frames),
+                               ("ref_audio_seconds", round(args.ref_audio_frames / target_fps, 4)))
+            if params.get(key) != value
+        ]
+        if mismatched:
+            errors.append("meta CSV 的参数与本次检查/训练不一致：" + "；".join(mismatched)
+                          + " → 用 STEPS=meta FORCE_META=1 按同一组参数重建")
+        else:
+            print(f"参数指纹一致（CSV 生成于 n_refs={params['n_refs']}, num_frames={params['num_frames']}, "
+                  f"ref_audio_seconds={params['ref_audio_seconds']}，{params.get('kept_rows', '?')} 行）")
+    else:
+        warnings.append(f"没有参数指纹 {params_path.name}（旧版 CSV）：无法确认它与本次训练参数是否一致")
+
     def run_stage(title, function, *stage_args):
         """跑一个检查阶段，只报告本阶段新增的 error/warning 数（累计计数看不出是哪一步的）。"""
         before = (len(errors), len(warnings))

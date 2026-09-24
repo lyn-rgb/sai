@@ -6,8 +6,17 @@ face detectoin and alignment using InsightFace
 
 import numpy as np
 from .rprint import rlog as log
-from .dependencies.insightface.app import FaceAnalysis
-from .dependencies.insightface.app.common import Face
+
+# 优先用仓库内联的 insightface 副本，它不完整（缺 `data/` 包）时退回 pip 安装的 insightface。
+# 两份是同一个上游项目、API 一致，所以可以直接互换。
+try:
+    from .dependencies.insightface.app import FaceAnalysis
+    from .dependencies.insightface.app.common import Face
+except Exception as e:                                   # noqa: BLE001 - 内联副本可能缺文件
+    log(f"[face_analysis_diy] 内联 insightface 不可用（{e}），改用已安装的 insightface")
+    from insightface.app import FaceAnalysis
+    from insightface.app.common import Face
+
 from .timer import Timer
 
 

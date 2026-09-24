@@ -31,11 +31,9 @@ from modules.t5 import (
 from modules.vae2_2 import RMS_norm, CausalConv3d, Upsample
 from modules.clip import CLIPModel as WanImageEncoder
 from schedulers.flow_match import FlowMatchScheduler
-# face cropper
-from modules.face_cropper.cropper import Cropper
-from modules.face_cropper.crop_config import CropConfig
-# face embedder
-from insightface.app import FaceAnalysis
+# NOTE，这里不再 import face_cropper：训练路径不用裁剪（参考脸由
+# `dataset/extract_ref_face_feats.py` 离线裁好），而它的依赖链（内联 insightface / onnxruntime）
+# 一缺文件就会把整个训练 import 拖死。推理侧需要裁剪时在 `ovi_fusion_engine` 里按需导入。
 # audio embedder
 from modules.ns3_codec.speaker_extractor import SpeakerExtractor
 # asr model
@@ -211,6 +209,9 @@ class WanVideoPipeline(torch.nn.Module):
     
     @torch.no_grad()
     def crop_image(self, images: torch.Tensor):
+        # NOTE，训练路径不会走到这里（`self.cropper` / `self.face_embedder` 只在推理侧初始化）
+        assert getattr(self, "cropper", None) is not None, \
+            "crop_image 需要先初始化 self.cropper（推理侧才有），训练路径不应调用"
         # image, tensor, [-1, 1], Bx3xHxW or Bx3x1xHxW,
         assert (images.dim() == 4) or (images.dim() == 5 and images.shape[2] == 1)
         has_t_dim = (images.dim() == 5)

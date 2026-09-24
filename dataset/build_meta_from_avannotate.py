@@ -44,8 +44,15 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from dataset.ref_audio import wav_seconds
+
+
+SEGMENT_ADJUSTMENTS: list = []      # 被文件长度收紧/丢弃的语音段（最后统一打印，避免刷屏）
 
 COLUMNS = [
     "video_path", "audio_path", "caption", "num_frames", "bbox",
@@ -98,6 +105,52 @@ def speaking_identities(segments: dict) -> dict[str, list[dict]]:
     return {face_id: by_identity[face_id] for face_id in sorted(by_identity)}
 
 
+def clamp_segments_to_files(annotation_dir: Path, segments_by_person: dict) -> list:
+    """Clamp every speech segment's `end` to its wav file's real duration, in place.
+
+    Returns the list of adjustments made, for reporting. `segments.json` records `[start, end]`, but
+    the wav next to it is not guaranteed to be that long (real corpora do contain short or
+    overwritten files), and the dataset slices the audio by **file length**. Trusting the interval
+    here would let a window look feasible at conversion time and then fail the dataset assertion
+    ("person N has only x.xx s of reference audio outside the target window").
+
+    A person whose every segment is unusable is removed from `segments_by_person`, so the caller's
+    identity count check drops the clip with a clear reason instead of writing an impossible row.
+    """
+    adjustments = []
+    for face_id, spans in list(segments_by_person.items()):
+        kept = []
+        for span in spans:
+            name = Path(span["audio"]).stem
+            try:
+                file_seconds = wav_seconds(annotation_dir / span["audio"])
+            except Exception as e:                                   # noqa: BLE001 - 报出来即可
+                adjustments.append(f"{name}(读不到: {e})")
+                continue
+            start, end = float(span["start"]), float(span["end"])
+            clamped = min(end, start + file_seconds)
+            if clamped - start <= 0.05:
+                adjustments.append(f"{name}(文件 {file_seconds:.2f}s，无可用部分)")
+                continue
+            if clamped < end - 0.05:
+                # `samples` 是标注当时记的样本数：它与文件一致说明只有 end 记错了（常见），
+                # 它对得上区间而文件短说明音频文件本身被截断/覆盖过——两种情况的排查方向不同
+                recorded = span.get("samples")
+                if recorded and abs(recorded / 16000 - file_seconds) <= 0.1:
+                    hint = "end 记长，samples 与文件一致"
+                elif recorded:
+                    hint = f"samples 记 {recorded / 16000:.2f}s，文件更短"
+                else:
+                    hint = "无 samples 字段"
+                adjustments.append(f"{name}(区间 {end - start:.2f}s → 文件 {clamped - start:.2f}s，{hint})")
+            kept.append(dict(span, end=clamped))
+        if kept:
+            segments_by_person[face_id] = kept
+        else:
+            del segments_by_person[face_id]
+    return adjustments
+
+
 def outside_seconds(segments: list[dict], start_s: float, end_s: float) -> float:
     """How much of a person's speech lies outside the target window."""
     total = 0.0
@@ -117,14 +170,56 @@ def inside_seconds(segments_by_person: dict[str, list[dict]], start_s: float, en
     return total
 
 
+def window_speech_seconds(annotation: dict, valid_face_ids: set, dialogue_in_window: bool = True):
+    """`(window_start_s, window_end_s) -> (窗口内整词语音秒数, 说话最少的那个人的秒数)`.
+
+    Same rule as `caption_utterances`: a word counts only when its **midpoint** is inside the window.
+    The interval arithmetic of `inside_seconds` would accept a window that merely grazes the speech
+    (it can be pushed to the very edge by the outside-audio objective), and such a window yields a
+    caption without a single `<S>` - the row would then be dropped as `no_dialogue`.
+    """
+    if not dialogue_in_window:                                   # 台词不裁剪：按整段的重叠算
+        def overlap(start_s: float, end_s: float):
+            per_person: dict[str, float] = {face_id: 0.0 for face_id in valid_face_ids}
+            for utterance in annotation.get("utterances", []):
+                if utterance["face_id"] not in valid_face_ids:
+                    continue
+                length = max(0.0, min(utterance["end"], end_s) - max(utterance["start"], start_s))
+                per_person[utterance["face_id"]] = per_person.get(utterance["face_id"], 0.0) + length
+            return sum(per_person.values()), (min(per_person.values()) if per_person else 0.0)
+        return overlap
+
+    words: list[tuple[float, float, str]] = []
+    for utterance in annotation.get("utterances", []):
+        if utterance["face_id"] not in valid_face_ids:
+            continue
+        spoken = utterance.get("words") or [utterance]     # 没有逐词时间戳时退化成整段（与 caption 一致）
+        for word in spoken:
+            midpoint = (word["start"] + word["end"]) / 2
+            words.append((midpoint, word["end"] - word["start"], utterance["face_id"]))
+
+    def in_window(start_s: float, end_s: float):
+        per_person: dict[str, float] = {face_id: 0.0 for face_id in valid_face_ids}
+        for midpoint, duration, face_id in words:
+            if start_s <= midpoint < end_s:
+                per_person[face_id] = per_person.get(face_id, 0.0) + duration
+        total = sum(per_person.values())
+        return total, (min(per_person.values()) if per_person else total)
+    return in_window
+
+
 def choose_window(segments_by_person: dict[str, list[dict]], total_resampled: int, num_frames: int,
                   target_fps: float, ref_seconds: float, min_target_seconds: float = 1.0,
-                  step_seconds: float = 0.25):
+                  step_seconds: float = 0.25, inside_fn=None):
     """Target window that maximises the smallest per-person amount of outside speech.
 
     A window is only usable when every person keeps `ref_seconds` of speech outside it (the
     reference audio has to come from somewhere else) and the window itself contains at least
     `min_target_seconds` of speech (otherwise the sample would teach the model to generate silence).
+    Ties on the outside score are broken by how much speech the window actually keeps
+    (`inside_fn`, see `window_speech_seconds`) - preferring the whole-word rule, so the chosen window
+    always yields dialogue for the caption, and preferring windows where the quietest person still
+    speaks.
     """
     window_seconds = num_frames / target_fps
     latest_start_frame = total_resampled - num_frames
@@ -134,17 +229,24 @@ def choose_window(segments_by_person: dict[str, list[dict]], total_resampled: in
     starts = list(range(0, latest_start_frame + 1, step_frames))
     if starts[-1] != latest_start_frame:
         starts.append(latest_start_frame)
+    if inside_fn is None:
+        inside_fn = lambda start_s, end_s: (inside_seconds(segments_by_person, start_s, end_s),) * 2  # noqa: E731
 
-    best = None
+    best = None                                    # (key, start_frame)
     for start_frame in starts:
         start_s = start_frame / target_fps
         end_s = start_s + window_seconds
-        if inside_seconds(segments_by_person, start_s, end_s) < min_target_seconds:
+        inside, quietest = inside_fn(start_s, end_s)
+        if inside < min_target_seconds:
             continue
         score = min(outside_seconds(spans, start_s, end_s) for spans in segments_by_person.values())
-        if best is None or score > best[0] + 1e-9:
-            best = (score, start_frame)
-    if best is None or best[0] < ref_seconds:
+        if score < ref_seconds:
+            continue
+        key = (score, quietest, inside)
+        if best is None or (key[0] > best[0][0] + 1e-9) or \
+                (abs(key[0] - best[0][0]) <= 1e-9 and key[1:] > best[0][1:]):
+            best = (key, start_frame)
+    if best is None:
         return None
     return best[1]
 
@@ -239,7 +341,9 @@ def build_video_index(list_path: Path | None, list_base: Path, video_root: Path,
         return {}, [], list_base
 
     candidates: list[Path] = []
-    for base in (list_base, video_root, list_path.parent):
+    # 列表里的相对路径可能是「相对当前目录」写的（例如 `example_data/examples/<id>.mp4`），
+    # 所以把 cwd 也作为一个基准一起探测，避免整批样本被误判成 unresolved
+    for base in (list_base, video_root, list_path.parent, Path.cwd()):
         if base not in candidates:
             candidates.append(base)
 
@@ -275,6 +379,10 @@ def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: in
     segments = load_json(segments_path)
     qa = load_json(qa_path) if qa_path.is_file() else {}
     segments_by_person = speaking_identities(segments)
+    # 按音频文件实际长度收紧区间（否则"窗口外够不够"会算多，训练时才炸）
+    segment_adjustments = clamp_segments_to_files(annotation_dir, segments_by_person)
+    if segment_adjustments:
+        SEGMENT_ADJUSTMENTS.extend(f"{video_path.stem}/{item}" for item in segment_adjustments)
 
     # 前置资料检查放在最前：特征缺失属于「流水线没跑完」，不该藏在样本质量过滤的后面
     # （否则补齐特征后各桶的计数会大幅漂移，看不出真实瓶颈）
@@ -314,8 +422,11 @@ def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: in
                       f"{len(speakers)} marked as speaking, n_refs={n_refs}")
 
     total_resampled = resampled_frame_count(probe, target_fps)
+    valid_face_ids = set(segments_by_person)
+    # 窗口内的「可用语音」按 caption 的同一口径（整词中点）算，否则可能选出一个留不下台词的窗口
     start_frame = choose_window(segments_by_person, total_resampled, num_frames, target_fps, ref_seconds,
-                                min_target_seconds=min_target_seconds)
+                                min_target_seconds=min_target_seconds,
+                                inside_fn=window_speech_seconds(annotation, valid_face_ids, dialogue_in_window))
     if start_frame is None:
         return None, (f"no_window: no {num_frames}-frame window with >= {min_target_seconds:.1f}s of speech inside "
                       f"and {ref_seconds:.1f}s of reference audio outside for every person "
@@ -323,7 +434,6 @@ def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: in
 
     window_start_s = start_frame / target_fps
     window_end_s = window_start_s + num_frames / target_fps
-    valid_face_ids = set(segments_by_person)
     turns = caption_utterances(annotation, window_start_s, window_end_s, valid_face_ids, dialogue_in_window)
     if not turns:
         return None, "no_dialogue: no utterance of a referenced person inside the target window"
@@ -440,6 +550,15 @@ def main() -> None:
     }
     params_path = args.output.with_name(args.output.name + ".params.json")
     params_path.write_text(json.dumps(params, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    if SEGMENT_ADJUSTMENTS:
+        affected_videos = len({item.split("/", 1)[0] for item in SEGMENT_ADJUSTMENTS})
+        print(f"⚠️  {len(SEGMENT_ADJUSTMENTS)} 个语音段的音频文件比记录的区间短（涉及 {affected_videos} 个视频），"
+              f"已按文件长度收紧：")
+        for item in SEGMENT_ADJUSTMENTS[:5]:
+            print(f"      {item}")
+        if len(SEGMENT_ADJUSTMENTS) > 5:
+            print(f"      … 还有 {len(SEGMENT_ADJUSTMENTS) - 5} 条")
 
     print(f"Wrote {kept} row(s) to {args.output}, dropped {len(dropped)}")
     print(f"参数指纹 -> {params_path.name} "

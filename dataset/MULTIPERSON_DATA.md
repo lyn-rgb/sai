@@ -44,10 +44,12 @@
 
 即：**窗口越长、参考越长，能用的样本越少**。样例里 `num_frames=121 + ref=2.0s` 的组合一条都用不了。
 
-**当前工作点：`num_frames=121`（5.0s 目标）+ `ref_audio_frames=24`（1.0s 参考）**，样例实测 1/2 可用
-（b41c 通过；b0e0 需要 ref ≤ 0.5s，c479 被 QA 拦下）。若真实语料的 yield 偏低，把
-`--num-frames` 降到 81（3.4s 目标，与早期 `train.sh` 一致）可以把阈值放宽到 ref ≤ 1.5s —— 转换脚本会
-逐条打印丢弃原因，跑一遍全量语料就能看出该往哪边调。
+**当前工作点：`num_frames=121`（5.0s 目标）+ `ref_audio_frames=24`（1.0s 参考）**，样例 3 条里 1 条可用
+（b41c 通过）。另外两条的丢弃原因与窗口无关，是样例标注树自身的问题：
+b0e0 的 F001 参考脸被改名成了 `F001.jpg.bak`（只剩 F002），c479 的 F002 段在上游就被跳过
+（`no face in the crop`）、F001 的 wav 只有 1.58s（`end` 记成了 4.01s），可用身份只剩 1 个 → `identity_count`。
+若真实语料的 yield 偏低，把 `--num-frames` 降到 81（3.4s 目标，与早期 `train.sh` 一致）可以把阈值放宽到
+ref ≤ 1.5s —— 转换脚本会逐条打印丢弃原因，跑一遍全量语料就能看出该往哪边调。
 
 ## 顺序约定（重点）
 
@@ -99,12 +101,26 @@ python dataset/build_meta_from_avannotate.py \
 
 - **槽位顺序 = face id 顺序**（F001 → slot 0）；只把「既说话、又有 TSE 音频」的身份当作槽位，数量必须等于 `n_refs`；
 - 过滤：`qa.passed`、无画外人声（`offscreen_speakers == 0`）、无歧义关联；
-- 选目标窗口：让每个人在窗口外都留够 `ref_audio_seconds`，且窗口内至少有 `min_target_speech_seconds` 语音；
+- **按音频文件实际长度收紧区间**：`s7-tse/segments.json` 记的 `[start, end]` 不保证等于 wav 的实际
+  长度（真实语料里确实存在「end 记长、文件更短」的段）。训练时数据集是按**文件长度**切片的，所以
+  转换这一步先把每个 `end` 收紧到 `start + 文件秒数`，再去选窗口并写 CSV —— 否则窗口外参考音频会算多，
+  训练时才在部分样本上断言失败（`person N … has only x.xx s of reference audio outside the target window`）。
+  被收紧/丢弃的段会汇总打印（含 `samples` 字段与文件是否一致，用于区分「只有 end 记错」和「文件被截断」）；
+  某个身份的所有段都不可用时，该样本按 `identity_count` 丢弃；
+- 选目标窗口：让每个人在窗口外都留够 `ref_audio_seconds`，且窗口内至少有 `min_target_speech_seconds` 语音。
+  窗口内的语音按**整词中点**计算，与 caption 取词的口径一致（按区间重叠算会选出一个「只擦到语音边缘、
+  一段整词都留不下」的窗口，写出的 caption 没有 `<S>`，样本只能丢掉）；窗口外分数相同时，优先选
+  「说话最少的那个人也说了话」的窗口；
 - **caption = 整段场景描述 + 窗口内的台词**：global caption 与各 shot caption 保持完整（视觉描述覆盖全片，
   与预训练数据一致）；台词只保留落在目标窗口内的部分（逐词裁剪，含说话人与情绪标签），形如
   `… <F002> sad: <S>many of these trophies<E>` —— 这样 `<S>` 与模型要生成的音频逐字对齐；
   加 `--keep-all-dialogue` 可改为保留全片所有台词；
 - 所有路径写成绝对路径，`target_start_frame`/`spk_segments` 一并落盘。
+
+> 这条约束有两个实现（转换脚本写 CSV、数据集读 CSV），任何一边单独改动都会让口径漂移。
+> `dataset/ref_audio.py` 是唯一一份算术：`outside_pieces`（切片）、`outside_seconds`（区间算术）、
+> `obtainable_seconds`（按文件长度裁剪，= 数据集真实行为）；自检脚本与
+> `tests/test_ref_audio_clamp.py`（无需 torch）都用它复算。
 
 对应的训练配置（`configs/train/model_multiperson.yaml`）里：
 

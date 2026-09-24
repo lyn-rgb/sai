@@ -11,9 +11,10 @@ Checks, in order:
 A. 结构（全量）：必备列齐、每条样本的参考人数一致、引用的文件都在、caption 里有 `<S>`、
    `target_start_frame` 落在 [0, 总帧数-窗口) 内；
 B. 参考脸 / 特征（全量）：参考图是 `--ref-size` 见方且不是纯色，`.pt` 是 512 维非零向量；
-C. 参考音频约束（全量）：按 `spk_segments` + 目标窗口复算一遍「每人在窗口外还剩多少语音」，
-   必须 ≥ 参考音频长度——这是训练时数据集会硬性断言的条件（转换脚本已经保证过一次，
-   这里独立复算，避免两边算法漂移）；
+C. 参考音频约束（全量）：按 `spk_segments` + 目标窗口复算一遍「每人在窗口外还剩多少参考音频」，
+   必须 ≥ 参考音频长度——这是训练时数据集会硬性断言的条件（转换脚本已经保证过一次，这里独立复算，
+   避免两边算法漂移）。**两套口径都算**：纯区间算术，以及按 wav 文件实际长度裁剪（= 数据集真实的
+   切片行为）；两者不等说明 `segments.json` 记的区间和音频文件长度对不上；
 D. 真实加载（抽检 `--samples` 条）：直接实例化 `TextAudioVideoFaceDataset` 取样本，
    打印各张量的形状与取值范围，并确认 N 个参考不是同一个（防止退化样本）。
 
@@ -30,6 +31,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from dataset.ref_audio import obtainable_seconds, outside_seconds
+
 REQUIRED_COLUMNS = {
     "video_path", "audio_path", "caption", "num_frames", "face_paths", "feat_paths",
     "spk_audio_paths", "spk_segments", "target_start_frame",
@@ -40,14 +43,6 @@ def parse_spk_segments(raw: str) -> list[list[list[float]]]:
     """`[[[start, end], ...], ...]` —— 每人一个区间列表。"""
     parsed = json.loads(raw)
     return [[[float(a), float(b)] for a, b in person] for person in parsed]
-
-
-def outside_seconds(spans: list[list[float]], start_s: float, end_s: float) -> float:
-    total = 0.0
-    for start, end in spans:
-        overlap = max(0.0, min(end, end_s) - max(start, start_s))
-        total += (end - start) - overlap
-    return total
 
 
 def check_structure(rows: list[dict], n_refs: int, target_fps: float, num_frames: int, errors: list, warnings: list):
@@ -89,22 +84,45 @@ def check_structure(rows: list[dict], n_refs: int, target_fps: float, num_frames
 
 def check_outside_audio(rows: list[dict], target_fps: float, num_frames: int, ref_audio_seconds: float,
                         errors: list, warnings: list) -> None:
-    """纯 python 复算「每人在目标窗口外还剩多少语音」——训练时数据集会硬性断言这一条。"""
+    """复算「每人在目标窗口外还剩多少参考音频」——训练时数据集会硬性断言这一条。
+
+    两套口径都算，因为它们是链路两端各自的实现：
+      * `outside_seconds`   —— 纯区间算术，用 CSV 里的 `spk_segments`（与转换脚本同源）；
+      * `obtainable_seconds` —— 按 wav 文件实际长度裁剪（与数据集 `load_ref_audios` 同源）。
+    只有后者会暴露「区间算术说够、文件里却没有这段音频」——也就是训练断言失败的真正原因。
+    """
     for index, row in enumerate(rows):
         tag = f"第 {index + 1} 行"
         try:
             spans_per_person = parse_spk_segments(row["spk_segments"])
         except Exception:                                        # noqa: BLE001 - 结构检查里已报过
             continue
+        groups = [group.split(",") for group in row["spk_audio_paths"].split(";") if group]
+        if len(groups) != len(spans_per_person):
+            continue                                             # 结构检查里已报过
         start_s = int(row["target_start_frame"]) / target_fps
-        for person_index, spans in enumerate(spans_per_person):
-            outside = outside_seconds(spans, start_s, start_s + num_frames / target_fps)
+        window = (start_s, start_s + num_frames / target_fps)
+        for person_index, (paths, spans) in enumerate(zip(groups, spans_per_person)):
+            outside = outside_seconds(spans, *window)
+            obtainable, notes = obtainable_seconds(paths, spans, *window)
             # 数据集允许 2% 的取整误差（其余部分会补零），阈值与它对齐
+            if obtainable < ref_audio_seconds * 0.98:
+                errors.append(f"{tag}: 第 {person_index} 人窗口外实际只能取到 {obtainable:.2f}s 参考音频 "
+                              f"(< {ref_audio_seconds:.2f}s 的 98%)，训练时会断言失败")
+                for note in [n for n in notes if "⚠️" in n or "读不到" in n][:3]:
+                    errors.append(f"{tag}:    {note}")
+                continue
             if outside < ref_audio_seconds * 0.98:
                 errors.append(f"{tag}: 第 {person_index} 人窗口外只有 {outside:.2f}s 参考音频 "
-                              f"(< {ref_audio_seconds:.2f}s 的 98%)，训练时会断言失败")
-            elif outside < ref_audio_seconds * 1.05:
-                warnings.append(f"{tag}: 第 {person_index} 人窗口外只有 {outside:.2f}s 参考音频，贴着阈值")
+                              f"(区间算术 < {ref_audio_seconds:.2f}s 的 98%)；若实际可得 {obtainable:.2f}s 则说明 "
+                              f"CSV 是用另一组 --num-frames/--ref-audio-seconds 生成的")
+                continue
+            if outside < ref_audio_seconds * 1.05 or obtainable < ref_audio_seconds * 1.05:
+                warnings.append(f"{tag}: 第 {person_index} 人窗口外 {outside:.2f}s / 实际可得 "
+                                f"{obtainable:.2f}s 参考音频，贴着阈值")
+            if abs(outside - obtainable) > 0.15:
+                warnings.append(f"{tag}: 第 {person_index} 人区间算术 {outside:.2f}s ≠ 实际可得 "
+                                f"{obtainable:.2f}s（音频文件长度与 segments.json 的区间对不上）")
 
 
 def check_references(rows: list[dict], ref_size: int, errors: list, warnings: list) -> None:

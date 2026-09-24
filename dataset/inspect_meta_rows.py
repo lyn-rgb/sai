@@ -30,7 +30,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from dataset.build_meta_from_avannotate import video_id_of
-from dataset.check_multiperson_dataset import parse_spk_segments, outside_seconds
+from dataset.check_multiperson_dataset import parse_spk_segments
+from dataset.ref_audio import obtainable_seconds, outside_seconds
 
 
 def load_rows(csv_path: Path) -> dict[str, dict]:
@@ -117,6 +118,22 @@ def main() -> int:
             print(line)
             if "❌" in line:
                 exit_code = 1
+            # 再按数据集**实际切片**（含文件长度裁剪）复算一遍：区间算术说够、实际取不到时，
+            # 差别就出在这里（通常意味着 wav 文件比 segments.json 里记的区间短）
+            spans_per_person = parse_spk_segments(row["spk_segments"])
+            groups = [group.split(",") for group in row["spk_audio_paths"].split(";")]
+            start_frame = int(row["target_start_frame"])
+            window = (start_frame / args.target_fps,
+                      start_frame / args.target_fps + args.num_frames / args.target_fps)
+            for person_index, (paths, spans) in enumerate(zip(groups, spans_per_person)):
+                obtainable, notes = obtainable_seconds(paths, spans, *window)
+                if obtainable < ref_audio_seconds * 0.98:
+                    exit_code = 1
+                    mark = "❌ 取不到（训练就在这里断言失败）"
+                else:
+                    mark = "✅"
+                print(f"      P{person_index} 实际可得 {obtainable:.2f}s / 阈值 {ref_audio_seconds:.2f}s  {mark}")
+                print(f"         {notes}")
             print(f"      spk_segments    : {row['spk_segments']}")
             print(f"      spk_audio_paths : {row['spk_audio_paths']}")
 

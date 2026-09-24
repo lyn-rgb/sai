@@ -22,6 +22,7 @@ decord.bridge.set_bridge("torch")    # Read to torch.Tensor directly
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 from . import video_transforms
+from .ref_audio import outside_pieces
 
 
 # 语料里的视频常常没有扩展名（例如 `.../clips/<hash>`）
@@ -44,16 +45,6 @@ def _video_alias(video_path: str) -> str:
         os.symlink(resolved, alias)
         _VIDEO_ALIASES[resolved] = alias
     return alias
-
-
-def outside_pieces(start: float, end: float, window_start: float, window_end: float) -> list:
-    """`(start, end)` 落在目标窗口之外的部分（可能被窗口切成两段）。"""
-    pieces = []
-    if start < window_start:
-        pieces.append((start, min(end, window_start)))
-    if end > window_end:
-        pieces.append((max(start, window_end), end))
-    return [(a, b) for a, b in pieces if b > a]
 
 
 def open_video_reader(video_path):

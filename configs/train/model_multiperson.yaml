@@ -1,17 +1,17 @@
 # Multi-person reference conditioning (N reference persons per sample).
 # Differences from `model.yaml` are grouped at the bottom.
 # model
-ckpt_dir: ./ckpts
+ckpt_dir: /inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/ckpts
 ckpt_name: Ovi/model.safetensors
 
 # face embedder
-face_embedder_ckpt_dir: ./ckpts/InsightFace
+face_embedder_ckpt_dir: /inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/ckpts/InsightFace
 face_ip_emb_dim: 512
 # audio embedder, TODO
-audio_embedder_ckpt_dir: ../weights/naturalspeech3_facodec
+audio_embedder_ckpt_dir: /inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/weights/naturalspeech3_facodec
 audio_ip_emb_dim: 256
 # asr model
-glm_asr_ckpt_path: ./ckpts/GLM_ASR/GLM-ASR-Nano-2512
+glm_asr_ckpt_path: /inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/ckpts/GLM_ASR/GLM-ASR-Nano-2512
 max_new_tokens: 128
 # vae
 height_division_factor: 16

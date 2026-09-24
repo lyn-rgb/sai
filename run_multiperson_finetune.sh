@@ -176,10 +176,12 @@ if [[ $RUN_META -eq 1 ]]; then
   ROWS=$("$PYTHON_BIN" -c "import csv;print(sum(1 for _ in csv.DictReader(open('$META_CSV'))))")
   echo "    meta CSV 共 $ROWS 行"
   [[ "$ROWS" -gt 0 ]] || fail "meta CSV 是空的：当前窗口/参考长度下没有可用样本，见上面的丢弃原因（可调小 NUM_FRAMES 或 REF_AUDIO_SECONDS）"
-  # dataset 会 glob `--meta_dir` 下所有 *.csv，别的 csv 会被当成训练数据
+  # dataset 会 glob `--meta_dir` 下所有 *.csv，别的 csv 会被一起当成训练数据（参数可能不同），
+  # 这种混用会让「窗口外参考音频」的保证在某些行上失效，所以默认直接报错
   EXTRA_CSV=$(find "$META_DIR" -maxdepth 1 -name '*.csv' ! -name "$(basename "$META_CSV")" | wc -l | tr -d ' ')
-  if [[ "$EXTRA_CSV" -gt 0 ]]; then
-    echo "⚠️  $META_DIR 下还有 $EXTRA_CSV 个其它 csv，会被一起当作训练数据；建议单独放一个目录"
+  if [[ "$EXTRA_CSV" -gt 0 && "${ALLOW_EXTRA_CSV:-0}" != "1" ]]; then
+    find "$META_DIR" -maxdepth 1 -name '*.csv' ! -name "$(basename "$META_CSV")" | head -5 | sed 's/^/      /'
+    fail "$META_DIR 下还有 $EXTRA_CSV 个其它 csv，会被一起当作训练数据（参数可能不同）→ 清掉它们，或 ALLOW_EXTRA_CSV=1 强行继续"
   fi
 fi
 

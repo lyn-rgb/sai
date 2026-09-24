@@ -519,6 +519,12 @@ class TextAudioVideoFaceDataset(TextAudioVideoDataset):
     # ------------------------------------------------------------------ sampling
     def sample_data(self, sample):
         spk_groups = self._person_path_groups(sample, "spk_audio_paths")
+        if spk_groups and self._opt(sample, "target_start_frame") is None:
+            # 逐人参考音频是靠「窗口外」切片拿到的，窗口随机时这个保证不成立
+            raise ValueError(
+                f"行 {sample.get('video_path')} 有 per-person 参考音频，但没有 target_start_frame；"
+                f"随机窗口无法保证参考音频落在目标窗口之外，请重建 meta CSV"
+                f"（STEPS=meta FORCE_META=1）")
         video, _, audio, audio_normalized, ref_audio, ref_audio_normalized, target_window_s = \
             super().sample_data(sample, need_ref_audio=len(spk_groups) == 0)
 

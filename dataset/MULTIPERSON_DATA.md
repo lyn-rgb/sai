@@ -123,6 +123,11 @@ python dataset/build_meta_from_avannotate.py \
   窗口内的语音按**整词中点**计算，与 caption 取词的口径一致（按区间重叠算会选出一个「只擦到语音边缘、
   一段整词都留不下」的窗口，写出的 caption 没有 `<S>`，样本只能丢掉）；窗口外分数相同时，优先选
   「说话最少的那个人也说了话」的窗口；
+- **`--min-per-person-speech-seconds`（一键脚本默认 0.3）**：把「每人都在窗口内说话」从偏好改成硬门。
+  不加这个门时，因为窗口选择是**最大化窗口外语音**，挑出来的窗口常常只有一个人在说 → caption 里
+  只有一句 `<S>` → 模型学到的是「生成一个人说话」，推理时即使 prompt 里写了两句台词也只会出一个人声。
+  用法：`python dataset/audit_window_speakers.py --meta-csv <csv> --num-frames $NUM_FRAMES` 看当前语料
+  的「窗口内说话人数」分布，再决定阈值（yield 会随阈值上升而下降）；
 - **caption = 整段场景描述 + 窗口内的台词**：global caption 与各 shot caption 保持完整（视觉描述覆盖全片，
   与预训练数据一致）；台词只保留落在目标窗口内的部分（逐词裁剪，含说话人与情绪标签），形如
   `… <F002> sad: <S>many of these trophies<E>` —— 这样 `<S>` 与模型要生成的音频逐字对齐；

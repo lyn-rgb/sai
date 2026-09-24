@@ -125,6 +125,37 @@ def check_outside_audio(rows: list[dict], target_fps: float, num_frames: int, re
                                 f"{obtainable:.2f}s（音频文件长度与 segments.json 的区间对不上）")
 
 
+def check_window_speakers(rows: list[dict], target_fps: float, num_frames: int,
+                          min_per_person_seconds: float, errors: list, warnings: list) -> None:
+    """每人是否都在目标窗口内说够了话 —— 只有一个人说话时，caption 里也只有一句 `<S>`。
+
+    模型是按 caption 生成音频的：这种样本教出来的是「生成一个人说话」，推理时即使 prompt 里
+    有两句台词也只会输出一个人声。
+    """
+    single = 0
+    for index, row in enumerate(rows):
+        tag = f"第 {index + 1} 行"
+        try:
+            spans_per_person = parse_spk_segments(row["spk_segments"])
+        except Exception:                                            # noqa: BLE001 - 结构检查里已报过
+            continue
+        start_s = int(row["target_start_frame"]) / target_fps
+        window = (start_s, start_s + num_frames / target_fps)
+        seconds = [sum(max(0.0, min(end, window[1]) - max(start, window[0])) for start, end in spans)
+                   for spans in spans_per_person]
+        if not seconds:
+            continue
+        if any(value < min_per_person_seconds for value in seconds):
+            single += 1
+            if single <= 5:
+                warnings.append(f"{tag}: 窗口内每人秒数 {[round(v, 2) for v in seconds]}，"
+                                f"有人不足 {min_per_person_seconds}s（caption 里可能没有他的台词）")
+    if single:
+        warnings.append(f"{single}/{len(rows)} 行的目标窗口里有人几乎没说话 → 这些样本教的是"
+                        f"「一个人说话」。若要看双人对话，用 --min-per-person-speech-seconds 重建 CSV"
+                        f"（一键脚本 MIN_PER_PERSON_SPEECH_SECONDS=0.3）")
+
+
 def check_references(rows: list[dict], ref_size: int, errors: list, warnings: list) -> None:
     """参考脸尺寸 / 特征维度与是否全零（需要 PIL 与 torch，训练环境里一定有）。"""
     try:
@@ -231,6 +262,8 @@ def main() -> int:
     parser.add_argument("--n-refs", type=int, default=2)
     parser.add_argument("--num-frames", type=int, default=121)
     parser.add_argument("--ref-audio-frames", type=int, default=24, help="必须与训练配置一致（24 = 1.0s）")
+    parser.add_argument("--min-per-person-speech-seconds", type=float, default=0.0,
+                        help="生成 CSV 时用的「每人窗口内至少说这么多秒」（0 = 旧行为／旧 CSV）")
     parser.add_argument("--ref-size", type=int, default=512)
     parser.add_argument("--height", type=int, default=480)
     parser.add_argument("--width", type=int, default=864)
@@ -280,6 +313,11 @@ def main() -> int:
                                ("ref_audio_seconds", round(args.ref_audio_frames / target_fps, 4)))
             if params.get(key) != value
         ]
+        # 旧版 CSV 没有这个键 = 生成时没要求（0.0），不算不一致
+        csv_min_person = params.get("min_per_person_speech_seconds", 0.0)
+        if abs(float(csv_min_person) - args.min_per_person_speech_seconds) > 1e-9:
+            mismatched.append(f"min_per_person_speech_seconds={csv_min_person}（CSV）"
+                              f"!= {args.min_per_person_speech_seconds}（本次）")
         if mismatched:
             errors.append("meta CSV 的参数与本次检查/训练不一致：" + "；".join(mismatched)
                           + " → 用 STEPS=meta FORCE_META=1 按同一组参数重建")
@@ -301,6 +339,9 @@ def main() -> int:
     run_stage("[B] 参考脸尺寸与参考特征", check_references, rows, args.ref_size, errors, warnings)
     run_stage("[B2] 参考脸来源（留白裁剪 vs 紧裁剪兜底）",
               check_reference_source, rows, args.feat_dir, errors, warnings)
+    if args.min_per_person_speech_seconds > 0:
+        run_stage("[C2] 窗口内说话人数（应为每人都有台词）", check_window_speakers,
+                  rows, target_fps, args.num_frames, args.min_per_person_speech_seconds, errors, warnings)
     run_stage("[C] 窗口外参考音频复算", check_outside_audio,
               rows, target_fps, args.num_frames, ref_audio_seconds, errors, warnings)
 

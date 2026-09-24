@@ -122,12 +122,13 @@ def build_fixture(root: Path, shorten: dict | None = None) -> tuple:
     return annotation_dir, video_root / f"{video_id}.mp4", feat_dir
 
 
-def convert(annotation_dir: Path, video_path: Path, feat_dir: Path):
+def convert(annotation_dir: Path, video_path: Path, feat_dir: Path, min_per_person_seconds: float = 0.0):
     adjustments: list = []
     row, reason = converter.build_row(
         annotation_dir, video_path, feat_dir, n_refs=len(SPEECH), num_frames=NUM_FRAMES,
         target_fps=FPS, ref_seconds=REF_SECONDS, require_qa_pass=False,
-        allow_offscreen_speech=True, adjustments=adjustments)
+        allow_offscreen_speech=True, adjustments=adjustments,
+        min_per_person_seconds=min_per_person_seconds)
     return row, reason, adjustments
 
 
@@ -212,6 +213,43 @@ def scenario_unusable_file(root: Path) -> None:
     check(bool(adjustments), "转换器报告了被丢掉的语音段", str(adjustments))
 
 
+def scenario_require_every_speaker(root: Path) -> None:
+    print("\n[4] 要求「窗口内两个人都说话」→ 必须放弃窗口外分数最高、但只有一个人说话的窗口")
+    annotation_dir, video_path, feat_dir = build_fixture(root)
+    annotation = json.loads((annotation_dir / "s11-compose" / "annotation.json").read_text(encoding="utf-8"))
+
+    def per_person_words(row: dict) -> list:
+        """每人窗口内的整词秒数（caption 取词用的是同一个规则）。"""
+        window = window_of(row)
+        totals = [0.0 for _ in SPEECH]
+        for index, face_id in enumerate(sorted(SPEECH)):
+            for utterance in annotation["utterances"]:
+                if utterance["face_id"] != face_id:
+                    continue
+                for word in utterance["words"]:
+                    if window[0] <= (word["start"] + word["end"]) / 2 < window[1]:
+                        totals[index] += word["end"] - word["start"]
+        return totals
+
+    loose, _, _ = convert(annotation_dir, video_path, feat_dir)                 # 默认 0：只看总量
+    strict, _, _ = convert(annotation_dir, video_path, feat_dir, 0.3)
+    check(loose is not None and strict is not None, "两种设置都能写出样本")
+    if loose is None or strict is None:
+        return
+    loose_words, strict_words = per_person_words(loose), per_person_words(strict)
+    print(f"      不加门：窗口 {window_of(loose)[0]:.2f}s 起，每人窗口内整词 {[round(v, 2) for v in loose_words]}")
+    print(f"      加门  ：窗口 {window_of(strict)[0]:.2f}s 起，每人窗口内整词 {[round(v, 2) for v in strict_words]}")
+    check(min(loose_words) < 0.3, "不加门时确实会选到「有人没说话」的窗口（问题前提成立）")
+    check(min(strict_words) >= 0.3, "加门后每人窗口内整词都 ≥ 0.3s（caption 里两人都有台词）",
+          f"{strict_words}")
+    turns = converter.caption_utterances(annotation, *window_of(strict), set(SPEECH), True)
+    check(len(turns) >= 2, "加门后的 caption 里有两句台词", str(turns))
+    # 加门的代价：窗口外参考音频变少，但仍必须满足约束
+    obtainable, _ = person_seconds(strict)
+    check(all(seconds >= REF_SECONDS for seconds in obtainable),
+          "加门后仍满足「每人窗口外 ≥ 参考长度」", f"{obtainable}")
+
+
 def main() -> int:
     print("参考音频窗口口径回归测试")
     with tempfile.TemporaryDirectory() as tmp:
@@ -219,6 +257,7 @@ def main() -> int:
         scenario_matching_files(root / "a")
         scenario_short_file(root / "b")
         scenario_unusable_file(root / "c")
+        scenario_require_every_speaker(root / "d")
     if FAILURES:
         print(f"\n❌ {len(FAILURES)} 项失败：")
         for label in FAILURES:

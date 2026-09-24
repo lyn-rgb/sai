@@ -5,7 +5,8 @@
         --video-root      /abs/example_data/examples \
         --feat-dir        /abs/example_data/ref_feats \
         --output          /abs/example_data/meta/multiperson_meta.csv \
-        --n-refs 2 --num-frames 121 --ref-audio-seconds 2.0 [--workers 16]
+        --n-refs 2 --num-frames 121 --ref-audio-seconds 2.0 [--workers 16] \
+        [--min-per-person-speech-seconds 0.3]
 
 Input layout (one directory per video, as produced by the annotation pipeline):
 
@@ -214,7 +215,7 @@ def window_speech_seconds(annotation: dict, valid_face_ids: set, dialogue_in_win
 
 def choose_window(segments_by_person: dict[str, list[dict]], total_resampled: int, num_frames: int,
                   target_fps: float, ref_seconds: float, min_target_seconds: float = 1.0,
-                  step_seconds: float = 0.25, inside_fn=None):
+                  step_seconds: float = 0.25, inside_fn=None, min_per_person_seconds: float = 0.0):
     """Target window that maximises the smallest per-person amount of outside speech.
 
     A window is only usable when every person keeps `ref_seconds` of speech outside it (the
@@ -224,6 +225,12 @@ def choose_window(segments_by_person: dict[str, list[dict]], total_resampled: in
     (`inside_fn`, see `window_speech_seconds`) - preferring the whole-word rule, so the chosen window
     always yields dialogue for the caption, and preferring windows where the quietest person still
     speaks.
+
+    `min_per_person_seconds` makes "every person actually speaks inside the window" a hard
+    requirement instead of a preference. Without it a window whose in-window speech is a single
+    person's line is perfectly acceptable - and because the objective maximises *outside* speech,
+    such windows are in fact preferred. A model trained on those targets learns to generate
+    one-speaker audio and ignores the second `<F00X>` block of the caption.
     """
     window_seconds = num_frames / target_fps
     latest_start_frame = total_resampled - num_frames
@@ -242,6 +249,8 @@ def choose_window(segments_by_person: dict[str, list[dict]], total_resampled: in
         end_s = start_s + window_seconds
         inside, quietest = inside_fn(start_s, end_s)
         if inside < min_target_seconds:
+            continue
+        if quietest < min_per_person_seconds:
             continue
         score = min(outside_seconds(spans, start_s, end_s) for spans in segments_by_person.values())
         if score < ref_seconds:
@@ -368,7 +377,7 @@ def build_video_index(list_path: Path | None, list_base: Path, video_root: Path,
 def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: int, num_frames: int,
               target_fps: float, ref_seconds: float, require_qa_pass: bool, allow_offscreen_speech: bool,
               min_target_seconds: float = 1.0, dialogue_in_window: bool = True,
-              adjustments: list | None = None):
+              adjustments: list | None = None, min_per_person_seconds: float = 0.0):
     """Returns `(row, None)` or `(None, reason)` when the clip cannot be used.
 
     `adjustments` is appended with the speech segments whose audio file is shorter than the recorded
@@ -438,10 +447,13 @@ def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: in
     # 窗口内的「可用语音」按 caption 的同一口径（整词中点）算，否则可能选出一个留不下台词的窗口
     start_frame = choose_window(segments_by_person, total_resampled, num_frames, target_fps, ref_seconds,
                                 min_target_seconds=min_target_seconds,
-                                inside_fn=window_speech_seconds(annotation, valid_face_ids, dialogue_in_window))
+                                inside_fn=window_speech_seconds(annotation, valid_face_ids, dialogue_in_window),
+                                min_per_person_seconds=min_per_person_seconds)
     if start_frame is None:
+        per_person = (f"，且每人窗口内至少 {min_per_person_seconds:.1f}s（避免只学到一个说话人）"
+                      if min_per_person_seconds > 0 else "")
         return None, (f"no_window: no {num_frames}-frame window with >= {min_target_seconds:.1f}s of speech inside "
-                      f"and {ref_seconds:.1f}s of reference audio outside for every person "
+                      f"and {ref_seconds:.1f}s of reference audio outside for every person{per_person} "
                       f"({total_resampled} frames available)")
 
     window_start_s = start_frame / target_fps
@@ -512,6 +524,10 @@ def main() -> None:
                         help="must match ref_audio_frames / target_fps at training time")
     parser.add_argument("--min-target-speech-seconds", type=float, default=1.0,
                         help="speech required inside the target window, otherwise the sample is dropped")
+    parser.add_argument("--min-per-person-speech-seconds", type=float, default=0.0,
+                        help="每人至少要在目标窗口内说这么多秒（0 = 不要求）。设成 0.3~0.5 可以让每条样本里"
+                             "两个人都真的出现在 caption 的 <S> 台词里；否则窗口常常只有一个人在说话，"
+                             "模型会学成「只生成一个人说话」")
     parser.add_argument("--keep-all-dialogue", action="store_true",
                         help="keep every dialogue line of the clip; by default only the lines inside "
                              "the target window are written (the scene description is always the full one)")
@@ -567,6 +583,7 @@ def main() -> None:
             allow_offscreen_speech=args.allow_offscreen_speech,
             min_target_seconds=args.min_target_speech_seconds,
             dialogue_in_window=not args.keep_all_dialogue,
+            min_per_person_seconds=args.min_per_person_speech_seconds,
             adjustments=adjustments,
         )
         return row, reason, adjustments
@@ -600,6 +617,7 @@ def main() -> None:
         "target_fps": args.target_fps,
         "ref_audio_seconds": args.ref_audio_seconds,
         "min_target_speech_seconds": args.min_target_speech_seconds,
+        "min_per_person_speech_seconds": args.min_per_person_speech_seconds,
         "keep_all_dialogue": args.keep_all_dialogue,
         "require_qa_pass": not args.no_require_qa_pass,
         "allow_offscreen_speech": args.allow_offscreen_speech,

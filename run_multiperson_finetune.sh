@@ -27,6 +27,11 @@ REF_AUDIO_SECONDS=1.0    # 每人参考音频长度；窗口越长/参考越长�
 # 品质门开关（只影响转换脚本的过滤；置 1 放宽，默认严格）
 ALLOW_QA_FAIL=${ALLOW_QA_FAIL:-0}                    # 1 → 保留 QA 未通过的样本（--no-require-qa-pass）
 ALLOW_OFFSCREEN_SPEECH=${ALLOW_OFFSCREEN_SPEECH:-0}  # 1 → 保留含画外人声的样本（--allow-offscreen-speech）
+# 每人至少要在目标窗口内说这么多秒。0 = 不要求（旧行为），此时窗口常常只有一个人在说话，
+# caption 里就只有一句 <S>，模型会学成「只生成一个人说话」（推理时表现为只有一个人出声）。
+# 调大 → 每条样本两个人都真的出现在台词里，但 yield 下降；用
+# `python dataset/audit_window_speakers.py --meta-csv <csv> --num-frames $NUM_FRAMES` 看实际分布。
+MIN_PER_PERSON_SPEECH_SECONDS=${MIN_PER_PERSON_SPEECH_SECONDS:-0.3}
 
 # --- 2b. 数据准备的并发（两步性质不同，别混）---
 # 特征提取跑在 GPU 上：FEATS_GPUS=0,1,2,3 → 每张卡一个进程，按视频分片并行（输出文件名不重叠）
@@ -130,6 +135,7 @@ echo "参考人数    : $N_REFS | 目标窗口: $NUM_FRAMES 帧 | 参考音频: 
 QA_NOTE="严格（丢弃 QA 未通过样本）"; [[ "$ALLOW_QA_FAIL" == "1" ]] && QA_NOTE="放宽（保留 QA 未通过样本）"
 OFFSCREEN_NOTE="丢弃含画外人声的样本"; [[ "$ALLOW_OFFSCREEN_SPEECH" == "1" ]] && OFFSCREEN_NOTE="保留含画外人声的样本"
 echo "品质门      : QA ${QA_NOTE} | ${OFFSCREEN_NOTE}"
+echo "窗口内说话  : 每人至少 ${MIN_PER_PERSON_SPEECH_SECONDS}s（0 = 不要求，样本里可能只有一个人说话）"
 echo "机器/进程   : ${NUM_MACHINES} 台 × ${NPROC_PER_NODE} = ${NUM_PROCESSES} | 梯度累积: ${GRAD_ACC_STEPS}（有效 batch ≈ ${EFFECTIVE_BATCH} 样本）"
 echo "训练超参    : LR=${LEARNING_RATE} | epoch=${NUM_EPOCHS} | 存档间隔: ${SAVE_STEPS}（auto = 按数据量定，见下）"
 echo "加速配置    : $ACCEL_CFG"
@@ -212,6 +218,7 @@ if [[ $RUN_META -eq 1 ]]; then
       --n-refs          "$N_REFS" \
       --num-frames      "$NUM_FRAMES" \
       --ref-audio-seconds "$REF_AUDIO_SECONDS" \
+      --min-per-person-speech-seconds "$MIN_PER_PERSON_SPEECH_SECONDS" \
       --workers         "$CSV_WORKERS" \
       ${LIST_ARGS[@]+"${LIST_ARGS[@]}"} \
       ${FILTER_ARGS[@]+"${FILTER_ARGS[@]}"}

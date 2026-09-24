@@ -147,5 +147,44 @@ fix_prompt_with_asr: false    # 见下
 > 是贪婪匹配，会把「第一个 `<S>` 到最后一个 `<E>`」之间的全部内容替换成一段混音转写 —— 多人 caption 里
 > 夹在中间的 `<F001>` 标签会一起被吃掉。关掉之后 caption 与窗口的对齐由转换脚本保证。
 
-推理侧要同步：`configs/inference/full_ovi_multiperson_5s.yaml` 的
-`ref_audio_samples` 必须等于 `ref_audio_frames * 16000 / 24`（24 → 16000，48 → 32000，96 → 64000）。
+## 推理（微调之后）
+
+一键脚本（推荐，直接用训练 CSV 里的样本当推理输入）：
+
+```bash
+# 用 logs 下最新的 step-*.safetensors + 训练 CSV 的前 3 条样本
+bash run_multiperson_inference.sh
+
+SAMPLE_IDS="<hash1> <hash2>" bash run_multiperson_inference.sh      # 指定样本
+LORA_PATH=logs/<run>/ckpt/step-5000.safetensors bash run_multiperson_inference.sh
+PREPARE_ONLY=1 bash run_multiperson_inference.sh                    # 只准备数据，打印将执行的命令
+```
+
+它做三件事：`evaluation/build_multiperson_testdata.py` 把训练 CSV 的行变成 testdata 目录 →
+`evaluation/build_testdata_prompt_csv.py --mode multiperson` 生成 prompt CSV →
+用「训练配置 + 推理配置」合并出的临时 yaml 调 `new_infer.py`。输出在
+`<output_dir>/ip_image_True_ip_audio_True_N<n>/<序号>_crop-True_<prompt>_<HxW>_<seed>_0.mp4`。
+
+两个容易踩的点，脚本已经处理：
+
+- **参考音频必须是训练时喂进去的那一段**：训练用的是「目标窗口之外」的语音切片
+  （`dataset/ref_audio.outside_pieces`），不是整段 TSE 文件。`SOURCE=csv` 用同一个 helper 重切，
+  保证条件一致；`SOURCE=testdata` 时你自己准备素材，脚本不检查这条。
+- **多人开关与路径以训练配置为准**：`n_refs` / `use_ref_av_fusion` / `fusion_lora_rank` /
+  `ckpt_dir` / 两个 embedder 都从 `configs/train/model_multiperson.yaml` 取，`ref_audio_samples`
+  由 `ref_audio_frames` 推出（= 帧数 × 16000 / 24）。漏掉 `use_ref_av_fusion` 的后果很隐蔽：
+  融合层不会被创建，ckpt 里的 `k_fusion_lora` / `v_fusion_lora` 会变成「多余 key」被静默跳过，
+  参考对的绑定等于没加载 —— 脚本对必要键做了断言。
+
+自己的素材（任意两个人的参考脸 + 参考音频）按这个布局放，然后 `SOURCE=testdata`：
+
+```
+<testdata_dir>/full_video_prompt/<id>_full_caption.txt     # 提示词（多人时含 <F00X>: <S>台词<E>）
+<testdata_dir>/frames/<id>_frame_p0.jpg  <id>_frame_p1.jpg # 每人一张参考脸（单人裁剪）
+<testdata_dir>/audio/<id>_audio_p0.wav   <id>_audio_p1.wav # 每人一段干净参考音频
+```
+
+手工跑 `new_infer.py --config-file configs/inference/full_ovi_multiperson_5s.yaml` 时记得自己改
+`lora_path`（留空=用底模，不会报错）以及 `text_prompt`（指向 prompt CSV）；其余「必须与训练一致」
+的项：`ref_audio_samples` = `ref_audio_frames * 16000 / 24`（24 → 16000，48 → 32000，96 → 64000）、
+`n_refs`、`use_ref_av_fusion`、`fusion_lora_rank`。

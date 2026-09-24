@@ -1,6 +1,8 @@
-ckpt_dir: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/ckpts
+ckpt_dir: /inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/ckpts
 ckpt_name: Ovi/model.safetensors
-lora_path: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/copy-Lab1/ilm/sai/logs/multiperson/ckpt/step-2000.safetensors
+# 微调产物：必须指向本次训练的 ckpt。`run_multiperson_inference.sh` 会自动填成
+# logs 下最新的 step-*.safetensors；手工跑 new_infer.py 时必须自己改（留空=用底模）。
+lora_path: ""
 self_lora: true
 load_lora: true
 lora_strict: false
@@ -8,9 +10,9 @@ zero_lora_layers: false
 use_reference_tokens: true
 use_ip_embeddings: true
 init_ip_embedding_layers: true
-face_embedder_ckpt_dir: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/ckpts/InsightFace
+face_embedder_ckpt_dir: /inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/ckpts/InsightFace
 face_ip_emb_dim: 512
-audio_embedder_ckpt_dir: /inspire/hdd/project/agileapplication/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/weights/naturalspeech3_facodec
+audio_embedder_ckpt_dir: /inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/weights/naturalspeech3_facodec
 audio_ip_emb_dim: 256
 # multi-person reference conditioning, must match the fine-tuned checkpoint
 n_refs: 2

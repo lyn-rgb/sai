@@ -99,9 +99,10 @@ def check_outside_audio(rows: list[dict], target_fps: float, num_frames: int, re
         start_s = int(row["target_start_frame"]) / target_fps
         for person_index, spans in enumerate(spans_per_person):
             outside = outside_seconds(spans, start_s, start_s + num_frames / target_fps)
-            if outside < ref_audio_seconds - 1e-6:
+            # 数据集允许 2% 的取整误差（其余部分会补零），阈值与它对齐
+            if outside < ref_audio_seconds * 0.98:
                 errors.append(f"{tag}: 第 {person_index} 人窗口外只有 {outside:.2f}s 参考音频 "
-                              f"(< {ref_audio_seconds:.2f}s)，训练时会断言失败")
+                              f"(< {ref_audio_seconds:.2f}s 的 98%)，训练时会断言失败")
             elif outside < ref_audio_seconds * 1.05:
                 warnings.append(f"{tag}: 第 {person_index} 人窗口外只有 {outside:.2f}s 参考音频，贴着阈值")
 

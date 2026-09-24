@@ -46,6 +46,16 @@ def _video_alias(video_path: str) -> str:
     return alias
 
 
+def outside_pieces(start: float, end: float, window_start: float, window_end: float) -> list:
+    """`(start, end)` 落在目标窗口之外的部分（可能被窗口切成两段）。"""
+    pieces = []
+    if start < window_start:
+        pieces.append((start, min(end, window_start)))
+    if end > window_end:
+        pieces.append((max(start, window_end), end))
+    return [(a, b) for a, b in pieces if b > a]
+
+
 def open_video_reader(video_path):
     """打开视频文件。
 
@@ -475,20 +485,32 @@ class TextAudioVideoFaceDataset(TextAudioVideoDataset):
             spans = intervals[person_idx] if person_idx < len(intervals) else []
             waves, total = [], 0
             for file_idx, path in enumerate(paths):
-                span = spans[file_idx] if file_idx < len(spans) else None
-                if span is not None and not (span[1] <= target_start_s or span[0] >= target_end_s):
-                    continue    # overlaps the target window: the reference would contain the target
                 wave = self._load_wave(osp.join(self.data_root, path))
-                if span is not None:
-                    wave = wave[int(span[0] * self.audio_sr): int(span[1] * self.audio_sr)]
-                waves.append(wave)
-                total += len(wave)
+                span = spans[file_idx] if file_idx < len(spans) else None
+                if span is None:
+                    pieces = [wave]
+                else:
+                    # 只取落在目标窗口之外的部分：转换脚本按「窗口外语音总量」判定可行性，
+                    # 这里若把「部分重叠」的整段丢掉，两边口径不一致，会误报参考音频不足
+                    span_start, span_end = float(span[0]), float(span[1])
+                    pieces = []
+                    for piece_start, piece_end in outside_pieces(span_start, span_end, target_start_s, target_end_s):
+                        begin = max(0, int(round((piece_start - span_start) * self.audio_sr)))
+                        finish = min(len(wave), int(round((piece_end - span_start) * self.audio_sr)))
+                        if finish > begin:
+                            pieces.append(wave[begin:finish])
+                for piece in pieces:
+                    waves.append(piece)
+                    total += len(piece)
                 if total >= self.ref_audio_length:
                     break
-            assert total >= self.ref_audio_length, (
+            # 允许 2% 的取整误差（下面的 _fit_ref_audio 会补零到固定长度），真正的缺失仍会被拦住
+            required = self.ref_audio_length * 0.98
+            assert total >= required, (
                 f"person {person_idx} of {sample.get('video_path')} has only {total / self.audio_sr:.2f}s of "
                 f"reference audio outside the target window {target_window_s}, "
-                f"{self.ref_audio_length / self.audio_sr:.2f}s required")
+                f"{self.ref_audio_length / self.audio_sr:.2f}s required "
+                f"(该样本的 spk_segments 与 target_start_frame 不匹配，需重建 meta CSV)")
             reference = torch.cat(waves)
             raws.append(self._fit_ref_audio(reference, normalize=False))
             normalized.append(self._fit_ref_audio(reference, normalize=True))

@@ -123,12 +123,12 @@ def build_fixture(root: Path, shorten: dict | None = None) -> tuple:
 
 
 def convert(annotation_dir: Path, video_path: Path, feat_dir: Path):
-    converter.SEGMENT_ADJUSTMENTS.clear()
+    adjustments: list = []
     row, reason = converter.build_row(
         annotation_dir, video_path, feat_dir, n_refs=len(SPEECH), num_frames=NUM_FRAMES,
         target_fps=FPS, ref_seconds=REF_SECONDS, require_qa_pass=False,
-        allow_offscreen_speech=True)
-    return row, reason, list(converter.SEGMENT_ADJUSTMENTS)
+        allow_offscreen_speech=True, adjustments=adjustments)
+    return row, reason, adjustments
 
 
 def window_of(row: dict) -> tuple:

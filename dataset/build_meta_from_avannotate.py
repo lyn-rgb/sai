@@ -5,7 +5,7 @@
         --video-root      /abs/example_data/examples \
         --feat-dir        /abs/example_data/ref_feats \
         --output          /abs/example_data/meta/multiperson_meta.csv \
-        --n-refs 2 --num-frames 121 --ref-audio-seconds 2.0
+        --n-refs 2 --num-frames 121 --ref-audio-seconds 2.0 [--workers 16]
 
 Input layout (one directory per video, as produced by the annotation pipeline):
 
@@ -38,6 +38,10 @@ Conventions (see `dataset/MULTIPERSON_DATA.md`):
 - Reference features must be computed with antelopev2 first (`dataset/extract_ref_face_feats.py`).
 - `fix_prompt_with_asr` must be false for these rows: the ASR rewrite regex is greedy and would
   replace everything between the first `<S>` and the last `<E>`, deleting the speaker tags.
+
+Building the CSV is pure I/O (no GPU): `--workers` defaults to `auto`, which probes the first clips
+and only enables a thread pool when the filesystem is slow enough for it to pay off. The output is
+byte-identical for any worker count.
 """
 from __future__ import annotations
 
@@ -45,14 +49,14 @@ import argparse
 import csv
 import json
 import sys
+import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from dataset.ref_audio import wav_seconds
 
-
-SEGMENT_ADJUSTMENTS: list = []      # 被文件长度收紧/丢弃的语音段（最后统一打印，避免刷屏）
 
 COLUMNS = [
     "video_path", "audio_path", "caption", "num_frames", "bbox",
@@ -363,8 +367,14 @@ def build_video_index(list_path: Path | None, list_base: Path, video_root: Path,
 
 def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: int, num_frames: int,
               target_fps: float, ref_seconds: float, require_qa_pass: bool, allow_offscreen_speech: bool,
-              min_target_seconds: float = 1.0, dialogue_in_window: bool = True):
-    """Returns `(row, None)` or `(None, reason)` when the clip cannot be used."""
+              min_target_seconds: float = 1.0, dialogue_in_window: bool = True,
+              adjustments: list | None = None):
+    """Returns `(row, None)` or `(None, reason)` when the clip cannot be used.
+
+    `adjustments` is appended with the speech segments whose audio file is shorter than the recorded
+    interval (see `clamp_segments_to_files`). Passing a per-call list keeps the report ordered and
+    the function free of shared state, so it can run from a thread pool.
+    """
     probe_path = annotation_dir / "s0-preprocess" / "probe.json"
     audio_path = annotation_dir / "s0-preprocess" / "mix.wav"
     annotation_path = annotation_dir / "s11-compose" / "annotation.json"
@@ -380,9 +390,11 @@ def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: in
     qa = load_json(qa_path) if qa_path.is_file() else {}
     segments_by_person = speaking_identities(segments)
     # 按音频文件实际长度收紧区间（否则"窗口外够不够"会算多，训练时才炸）
-    segment_adjustments = clamp_segments_to_files(annotation_dir, segments_by_person)
-    if segment_adjustments:
-        SEGMENT_ADJUSTMENTS.extend(f"{video_path.stem}/{item}" for item in segment_adjustments)
+    if adjustments is not None:                     # 由调用方传入，便于并发时按顺序汇总
+        adjustments.extend(f"{video_path.stem}/{item}"
+                           for item in clamp_segments_to_files(annotation_dir, segments_by_person))
+    else:
+        clamp_segments_to_files(annotation_dir, segments_by_person)
 
     # 前置资料检查放在最前：特征缺失属于「流水线没跑完」，不该藏在样本质量过滤的后面
     # （否则补齐特征后各桶的计数会大幅漂移，看不出真实瓶颈）
@@ -454,6 +466,31 @@ def build_row(annotation_dir: Path, video_path: Path, feat_dir: Path, n_refs: in
     return row, None
 
 
+def plan_workers(spec: str, annotation_dirs: list, work) -> tuple:
+    """Resolve `--workers`: a number, or `auto` = probe the first few clips and decide.
+
+    The per-clip work is pure I/O (read 3-4 json files, open every segment wav header, stat the
+    reference media): on a local SSD that is ~0.5 ms per clip and threads only add handoff overhead,
+    while on a network/cluster filesystem the same work is dominated by round trips (10-25 stat/open
+    calls per clip) and a thread pool hides the latency almost linearly. So rather than guessing,
+    time a small serial probe and scale up only when the filesystem is actually slow.
+    """
+    if spec != "auto":
+        return max(1, int(spec)), f"--workers {spec}"
+    probe = min(32, len(annotation_dirs))
+    if probe == 0:
+        return 1, "没有样本"
+    start = time.perf_counter()
+    for annotation_dir in annotation_dirs[:probe]:
+        work(annotation_dir)
+    per_clip_ms = (time.perf_counter() - start) / probe * 1000
+    if per_clip_ms >= 2.0:
+        return 16, (f"auto：单条实测 {per_clip_ms:.1f}ms ≥ 2ms（文件系统延迟高）→ 开 16 个 worker，"
+                    f"可用 --workers N 固定")
+    return 1, (f"auto：单条实测 {per_clip_ms:.1f}ms < 2ms（本地盘）→ 串行更快，"
+               f"集群/网络盘上会自动改开 16 个，也可用 --workers N 强制")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="avannotate -> multi-person training meta CSV.")
     parser.add_argument("--annotation-root", type=Path, required=True)
@@ -483,6 +520,8 @@ def main() -> None:
     parser.add_argument("--allow-offscreen-speech", action="store_true",
                         help="keep clips that contain speech without a visible face")
     parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument("--workers", default="auto",
+                        help="并发读取标注/音频的线程数：`auto`（默认，按实测单条耗时决定）、1（串行）或具体数字")
     args = parser.parse_args()
 
     annotation_dirs = sorted(p.parent.parent for p in args.annotation_root.glob("*/s11-compose/annotation.json"))
@@ -502,37 +541,56 @@ def main() -> None:
         print(f"  … 还有 {len(unresolved) - 3} 行")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    def work(annotation_dir: Path):
+        """一条样本的全部读取与判定。返回 `(row, reason, adjustments)`。
+
+        这一步是**纯 I/O**（读 json / 开 wav 头 / stat 文件），不碰 GPU，所以并发用线程就够：
+        线程池对文件系统延迟的隐藏效果与多进程相同，但没有 pickle 与每进程重建索引的开销。
+        """
+        adjustments: list = []
+        video_id = annotation_dir.name
+        video_path = video_index.get(video_id)
+        if video_path is None:
+            # 没在 --list 里（或没给 --list）：在 video-root 下找 `<id>` / `<id>.<ext>`
+            video_path = resolve_video_path(args.video_root / video_id, video_exts)
+        if video_path is None:
+            return None, f"missing_video: {args.video_root / video_id}[.mp4]", adjustments
+        row, reason = build_row(
+            annotation_dir=annotation_dir,
+            video_path=video_path,
+            feat_dir=args.feat_dir,
+            n_refs=args.n_refs,
+            num_frames=args.num_frames,
+            target_fps=args.target_fps,
+            ref_seconds=args.ref_audio_seconds,
+            require_qa_pass=not args.no_require_qa_pass,
+            allow_offscreen_speech=args.allow_offscreen_speech,
+            min_target_seconds=args.min_target_speech_seconds,
+            dialogue_in_window=not args.keep_all_dialogue,
+            adjustments=adjustments,
+        )
+        return row, reason, adjustments
+
     kept, dropped = 0, []
+    segment_adjustments: list = []
+    workers, worker_note = plan_workers(args.workers, annotation_dirs, work)
+    print(f"并发 {workers} 个 worker 读取（{worker_note}；这一步是纯 I/O，不使用 GPU）")
     with args.output.open("w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=COLUMNS)
         writer.writeheader()
-        for annotation_dir in annotation_dirs:
-            video_id = annotation_dir.name
-            video_path = video_index.get(video_id)
-            if video_path is None:
-                # 没在 --list 里（或没给 --list）：在 video-root 下找 `<id>` / `<id>.<ext>`
-                video_path = resolve_video_path(args.video_root / video_id, video_exts)
-            if video_path is None:
-                dropped.append((video_id, f"missing_video: {args.video_root / video_id}[.mp4]"))
-                continue
-            row, reason = build_row(
-                annotation_dir=annotation_dir,
-                video_path=video_path,
-                feat_dir=args.feat_dir,
-                n_refs=args.n_refs,
-                num_frames=args.num_frames,
-                target_fps=args.target_fps,
-                ref_seconds=args.ref_audio_seconds,
-                require_qa_pass=not args.no_require_qa_pass,
-                allow_offscreen_speech=args.allow_offscreen_speech,
-                min_target_seconds=args.min_target_speech_seconds,
-                dialogue_in_window=not args.keep_all_dialogue,
-            )
-            if row is None:
-                dropped.append((video_id, reason))
-                continue
-            writer.writerow(row)
-            kept += 1
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            # map 按输入顺序产出，所以 CSV 行序与 workers=1 时完全一致（并发不影响结果）
+            for done, (annotation_dir, (row, reason, adjustments)) in enumerate(
+                    zip(annotation_dirs, pool.map(work, annotation_dirs)), start=1):
+                video_id = annotation_dir.name
+                segment_adjustments.extend(adjustments)
+                if row is None:
+                    dropped.append((video_id, reason))
+                else:
+                    writer.writerow(row)
+                    kept += 1
+                if done % 200 == 0 or done == len(annotation_dirs):
+                    print(f"  … {done}/{len(annotation_dirs)}（已写出 {kept}）", flush=True)
 
     # 参数指纹：训练时的 num_frames / ref_audio_seconds / n_refs 必须与生成时一致，
     # 否则「每人在窗口外留够参考音频」的保证不成立（训练时才报错，很难查）
@@ -551,14 +609,14 @@ def main() -> None:
     params_path = args.output.with_name(args.output.name + ".params.json")
     params_path.write_text(json.dumps(params, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
-    if SEGMENT_ADJUSTMENTS:
-        affected_videos = len({item.split("/", 1)[0] for item in SEGMENT_ADJUSTMENTS})
-        print(f"⚠️  {len(SEGMENT_ADJUSTMENTS)} 个语音段的音频文件比记录的区间短（涉及 {affected_videos} 个视频），"
+    if segment_adjustments:
+        affected_videos = len({item.split("/", 1)[0] for item in segment_adjustments})
+        print(f"⚠️  {len(segment_adjustments)} 个语音段的音频文件比记录的区间短（涉及 {affected_videos} 个视频），"
               f"已按文件长度收紧：")
-        for item in SEGMENT_ADJUSTMENTS[:5]:
+        for item in segment_adjustments[:5]:
             print(f"      {item}")
-        if len(SEGMENT_ADJUSTMENTS) > 5:
-            print(f"      … 还有 {len(SEGMENT_ADJUSTMENTS) - 5} 条")
+        if len(segment_adjustments) > 5:
+            print(f"      … 还有 {len(segment_adjustments) - 5} 条")
 
     print(f"Wrote {kept} row(s) to {args.output}, dropped {len(dropped)}")
     print(f"参数指纹 -> {params_path.name} "

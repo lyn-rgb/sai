@@ -27,6 +27,10 @@ So for every identity the best detection of its track (`s2-tracks/tracks.jsonl` 
 tight crop for identities that are missing here).
 
 The step is incremental: existing outputs are skipped unless `--overwrite`.
+
+Multi-GPU: run one process per GPU, each with its own shard (`CUDA_VISIBLE_DEVICES=<g> ... --device 0
+--shard-index <i> --shard-count <n>`). Videos - not faces - are split, so the shards never write the
+same file. On a single machine the run script does this for you via `FEATS_GPUS=0,1,2,3`.
 """
 from __future__ import annotations
 
@@ -172,7 +176,12 @@ def main() -> None:
                         help="crop this many times the face size (the repo's cropper uses 2.2)")
     parser.add_argument("--ref-size", type=int, default=512, help="reference face image size")
     parser.add_argument("--face-embedder-ckpt", default="./ckpts/InsightFace")
-    parser.add_argument("--device", type=int, default=0)
+    parser.add_argument("--device", type=int, default=0,
+                        help="本进程使用的 GPU（配合 CUDA_VISIBLE_DEVICES，多卡时每进程写 0）")
+    parser.add_argument("--shard-index", type=int, default=0,
+                        help="多卡/多进程分片：本进程处理第几片（0 起）")
+    parser.add_argument("--shard-count", type=int, default=1,
+                        help="总共切成几片：每片一个进程一张卡（按视频切，输出文件名不重叠）")
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
@@ -182,6 +191,13 @@ def main() -> None:
         raise RuntimeError(f"No */s11-compose/annotation.json under {args.annotation_root}")
     if args.limit is not None:
         annotation_dirs = annotation_dirs[: args.limit]
+    if args.shard_count > 1:
+        # 按视频切片（不是按人脸），每个视频的输出文件名是 `<video_id>_<face_id>.*`，
+        # 所以片与片之间不会写同一个文件；配合「已存在则跳过」的增量逻辑也不会重复算
+        if not 0 <= args.shard_index < args.shard_count:
+            raise SystemExit(f"--shard-index 必须在 [0, {args.shard_count}) 内")
+        annotation_dirs = annotation_dirs[args.shard_index:: args.shard_count]
+        print(f"分片 {args.shard_index + 1}/{args.shard_count}：本进程处理 {len(annotation_dirs)} 个视频")
 
     video_exts = tuple(e.strip() for e in args.video_exts.split(",") if e.strip())
     video_index, _, list_base = (
@@ -197,7 +213,8 @@ def main() -> None:
 
     written, skipped, failures = 0, 0, []
     padded, fallback_crops = 0, 0
-    for annotation_dir in tqdm(annotation_dirs, desc="reference faces"):
+    shard_tag = f" [shard {args.shard_index}/{args.shard_count}]" if args.shard_count > 1 else ""
+    for annotation_dir in tqdm(annotation_dirs, desc=f"reference faces{shard_tag}"):
         video_id = annotation_dir.name
         try:
             by_face = load_identity_tracks(annotation_dir)
@@ -257,7 +274,7 @@ def main() -> None:
             torch.save({"face_emb": embedding}, feat_out)
             written += 1
 
-    print(f"Wrote {written} reference faces to {args.output_dir} "
+    print(f"Wrote {written} reference faces{shard_tag} to {args.output_dir} "
           f"(skipped {skipped}, failed {len(failures)}; {padded} 需补边才检出, {fallback_crops} 用了紧裁剪兜底)")
     if fallback_crops > max(10, 0.02 * max(written, 1)):
         print("⚠️  有相当比例的参考脸退回了紧裁剪兜底（说明视频没打开），"

@@ -28,6 +28,13 @@ REF_AUDIO_SECONDS=1.0    # 每人参考音频长度；窗口越长/参考越长�
 ALLOW_QA_FAIL=${ALLOW_QA_FAIL:-0}                    # 1 → 保留 QA 未通过的样本（--no-require-qa-pass）
 ALLOW_OFFSCREEN_SPEECH=${ALLOW_OFFSCREEN_SPEECH:-0}  # 1 → 保留含画外人声的样本（--allow-offscreen-speech）
 
+# --- 2b. 数据准备的并发（两步性质不同，别混）---
+# 特征提取跑在 GPU 上：FEATS_GPUS=0,1,2,3 → 每张卡一个进程，按视频分片并行（输出文件名不重叠）
+FEATS_GPUS=${FEATS_GPUS:-0}
+# meta CSV 转换是纯 I/O（读 json / 开 wav 头 / stat 文件），不吃 GPU：
+# auto = 先串行探 32 条，单条 ≥2ms（集群/网络盘）就自动开 16 线程，本地盘则保持串行
+CSV_WORKERS=${CSV_WORKERS:-auto}
+
 # --- 3. 训练 ---
 CKPT_DIR=/inspire/hdd/project/qproject-assement/zhangkaipeng-24043/mm1/CloneMyFaceCloneMyVoice/sai/ckpts   # 内含 Ovi/model.safetensors 与 InsightFace/
 FACE_EMBEDDER_CKPT=$CKPT_DIR/InsightFace
@@ -143,13 +150,41 @@ if [[ $RUN_FEATS -eq 1 ]]; then
   [[ "${FORCE_FEATS:-0}" == "1" ]] && OVERWRITE_ARGS=(--overwrite)
   echo "==> [1/3] 提取参考人脸特征（antelopev2，增量；已有 $FEAT_COUNT 个 .pt，FORCE_FEATS=1 可重算）"
   echo "         从视频按 2.2 倍留白重裁参考脸（与预训练/推理的裁剪比例一致）"
-  "$PYTHON_BIN" dataset/extract_ref_face_feats.py \
-    --annotation-root "$ANN_ROOT" \
-    --video-root      "$VIDEO_ROOT" \
-    --output-dir      "$FEAT_DIR" \
-    --face-embedder-ckpt "$FACE_EMBEDDER_CKPT" \
-    ${LIST_ARGS[@]+"${LIST_ARGS[@]}"} \
-    ${OVERWRITE_ARGS[@]+"${OVERWRITE_ARGS[@]}"}
+  IFS=',' read -r -a FEATS_GPU_LIST <<< "$FEATS_GPUS"
+  if [[ "${#FEATS_GPU_LIST[@]}" -gt 1 ]]; then
+    # 多卡：每个 GPU 一个进程，各自处理一个视频分片（`--shard-index/--shard-count`）。
+    # 按视频而不是按人脸切，两个分片不会写同一个文件；增量逻辑（已存在则跳过）也保证幂等。
+    FEATS_LOG_DIR="$ROOT_DIR/logs/data_prep"
+    mkdir -p "$FEATS_LOG_DIR"
+    echo "         ${#FEATS_GPU_LIST[@]} 张卡分片并行：GPU ${FEATS_GPUS}（每卡一个进程）"
+    FEATS_PIDS=()
+    for i in "${!FEATS_GPU_LIST[@]}"; do
+      GPU="${FEATS_GPU_LIST[$i]}"
+      FEATS_LOG="$FEATS_LOG_DIR/feats_gpu${GPU}.log"
+      CUDA_VISIBLE_DEVICES="$GPU" "$PYTHON_BIN" dataset/extract_ref_face_feats.py \
+        --annotation-root "$ANN_ROOT" \
+        --video-root      "$VIDEO_ROOT" \
+        --output-dir      "$FEAT_DIR" \
+        --face-embedder-ckpt "$FACE_EMBEDDER_CKPT" \
+        --device 0 --shard-index "$i" --shard-count "${#FEATS_GPU_LIST[@]}" \
+        ${LIST_ARGS[@]+"${LIST_ARGS[@]}"} \
+        ${OVERWRITE_ARGS[@]+"${OVERWRITE_ARGS[@]}"} >"$FEATS_LOG" 2>&1 &
+      FEATS_PIDS+=($!)
+      echo "           GPU $GPU → 分片 $((i + 1))/${#FEATS_GPU_LIST[@]}，日志 $FEATS_LOG"
+    done
+    FEATS_FAILED=0
+    for pid in "${FEATS_PIDS[@]}"; do wait "$pid" || FEATS_FAILED=1; done
+    [[ "$FEATS_FAILED" -eq 0 ]] || fail "有分片进程失败（日志在 $FEATS_LOG_DIR/feats_gpu*.log），修好后重跑（已完成的会跳过）"
+  else
+    "$PYTHON_BIN" dataset/extract_ref_face_feats.py \
+      --annotation-root "$ANN_ROOT" \
+      --video-root      "$VIDEO_ROOT" \
+      --output-dir      "$FEAT_DIR" \
+      --face-embedder-ckpt "$FACE_EMBEDDER_CKPT" \
+      --device "${FEATS_GPU_LIST[0]:-0}" \
+      ${LIST_ARGS[@]+"${LIST_ARGS[@]}"} \
+      ${OVERWRITE_ARGS[@]+"${OVERWRITE_ARGS[@]}"}
+  fi
   FEAT_COUNT=$(find "$FEAT_DIR" -maxdepth 1 -name '*.pt' | wc -l | tr -d ' ')
   [[ "$FEAT_COUNT" -gt 0 ]] || fail "没有生成任何参考人脸特征，检查 $ANN_ROOT/*/s3-cluster/faces/"
 fi
@@ -169,6 +204,7 @@ if [[ $RUN_META -eq 1 ]]; then
       --n-refs          "$N_REFS" \
       --num-frames      "$NUM_FRAMES" \
       --ref-audio-seconds "$REF_AUDIO_SECONDS" \
+      --workers         "$CSV_WORKERS" \
       ${LIST_ARGS[@]+"${LIST_ARGS[@]}"} \
       ${FILTER_ARGS[@]+"${FILTER_ARGS[@]}"}
   fi

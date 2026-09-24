@@ -124,6 +124,11 @@ def load_fusion_lora(fusion, ckpt_path, from_meta=False, strict=True, strict_mis
         #print(state_dict.keys())
         
         model = {}
+        # 训练导出（train.py 的 export_trainable_state_dict 按 requires_grad 过滤）只会包含
+        # `trainable_models` 里那些层。基础融合层的投影（k_fusion/v_fusion 等）在底模里，
+        # `s_*_loras` 是多人的 recipe 里被移除的死层 —— 它们「不在 ckpt 里」是正常的，
+        # 不该混进缺失审计里（否则每次都会报 700+ 个 key，真正的缺失反而看不出来）。
+        auditable = set()
         for tower_name in ["audio_model", "video_model"]:
             tower = getattr(fusion, tower_name, None)
             if tower is None:
@@ -139,7 +144,9 @@ def load_fusion_lora(fusion, ckpt_path, from_meta=False, strict=True, strict_mis
                     layer = getattr(tower.ip_projection, sub)
                     for param_name in ["weight", "bias"]:
                         if hasattr(layer, param_name):
-                            model[f"{tower_name}.ip_projection.{sub}.{param_name}"] = getattr(layer, param_name)
+                            key = f"{tower_name}.ip_projection.{sub}.{param_name}"
+                            model[key] = getattr(layer, param_name)
+                            auditable.add(key)
                         elif strict:
                             raise KeyError(f"Missing module: {tower_name}.ip_projection.{sub}.{param_name}")
 
@@ -150,17 +157,22 @@ def load_fusion_lora(fusion, ckpt_path, from_meta=False, strict=True, strict_mis
                 for name in ["q_loras", "k_loras", "v_loras", "o_loras", "s_q_loras", "s_k_loras", "s_v_loras", "s_o_loras"]:
                     if not hasattr(attn, name):
                         continue
+                    is_trained = not name.startswith("s_")          # s_*_loras：多人 recipe 里的死层
                     for sub in ["down", "up"]:
                         key = f"{prefix}self_attn.{name}.{sub}.weight"
                         if hasattr(getattr(attn, name), sub):
                             model[key] = getattr(getattr(attn, name), sub).weight
+                            if is_trained:
+                                auditable.add(key)
                         elif strict:
                             raise KeyError(f"Missing module: {key}")
                 # ip embedding layer
                 if hasattr(attn, "ip_embedding"):
                     for param_name in ["weight", "bias"]:
                         if hasattr(attn.ip_embedding, param_name):
-                            model[f"{prefix}self_attn.ip_embedding.{param_name}"] = getattr(attn.ip_embedding, param_name)
+                            key = f"{prefix}self_attn.ip_embedding.{param_name}"
+                            model[key] = getattr(attn.ip_embedding, param_name)
+                            auditable.add(key)
                         elif strict:
                             raise KeyError(f"Missing module: {prefix}self_attn.ip_embedding.{param_name}")
                 # fusion adapters (audio<->video cross-attention, incl. the reference-pair route)
@@ -174,17 +186,23 @@ def load_fusion_lora(fusion, ckpt_path, from_meta=False, strict=True, strict_mis
                         key = f"{prefix}cross_attn.{name}.{sub}.weight"
                         if hasattr(getattr(cross_attn, name), sub):
                             model[key] = getattr(getattr(cross_attn, name), sub).weight
+                            auditable.add(key)
                         elif strict:
                             raise KeyError(f"Missing module: {key}")
                 for name in ["k_fusion", "v_fusion", "pre_attn_norm_fusion", "norm_k_fusion"]:
-                    # these live in the base fusion checkpoint, so they are optional here
-                    # (`norm_k_fusion` is an `nn.Identity` when qk_norm is disabled)
+                    # `k_fusion`/`v_fusion` come from the base fusion checkpoint (frozen in the
+                    # multi-person recipe) so they are not audited; `pre_attn_norm_fusion` /
+                    # `norm_k_fusion` are trained, so they are.
                     if not hasattr(cross_attn, name):
                         continue
+                    is_trained = name in ("pre_attn_norm_fusion", "norm_k_fusion")
                     layer = getattr(cross_attn, name)
                     for param_name in ["weight", "bias"]:
                         if hasattr(layer, param_name):
-                            model[f"{prefix}cross_attn.{name}.{param_name}"] = getattr(layer, param_name)
+                            key = f"{prefix}cross_attn.{name}.{param_name}"
+                            model[key] = getattr(layer, param_name)
+                            if is_trained:
+                                auditable.add(key)
 
         loaded, skipped = 0, []
         for k, param in state_dict.items():
@@ -208,7 +226,8 @@ def load_fusion_lora(fusion, ckpt_path, from_meta=False, strict=True, strict_mis
         # only symptom during training is a slightly worse loss. Report it loudly.
         # Starting a new fine-tune from an older checkpoint legitimately misses newly added layers,
         # hence `strict_missing` is opt-in.
-        missing = sorted(k for k in model.keys() if k not in state_dict)
+        missing = sorted(k for k in auditable if k not in state_dict)
+        not_audited = sorted(k for k in model.keys() if k not in auditable and k not in state_dict)
         if missing:
             preview = ", ".join(missing[:8]) + (" ..." if len(missing) > 8 else "")
             msg = (f"{len(missing)} loadable key(s) not found in {os.path.basename(ckpt_path)} "
@@ -219,7 +238,8 @@ def load_fusion_lora(fusion, ckpt_path, from_meta=False, strict=True, strict_mis
             print("[Warning] The layers above keep their current initialization. "
                   "If this is not intended, check the key names against the checkpoint.")
         print(f"Loaded {loaded} adapter tensor(s) from {os.path.basename(ckpt_path)}, "
-              f"skipped {len(skipped)}, missing {len(missing)}.")
+              f"skipped {len(skipped)}, missing {len(missing)}"
+              + (f"（另有 {len(not_audited)} 个属于底模/未参与训练的层，不算缺失）" if not_audited else "") + ".")
     else:
         raise RuntimeError(f"LoRA checkpoint does not exist: {ckpt_path}")
     

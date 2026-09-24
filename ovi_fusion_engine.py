@@ -181,7 +181,28 @@ class OviFusionEngine:
         if self.crop_face:
             from modules.face_cropper.crop_config import CropConfig
             from modules.face_cropper.cropper import Cropper
-            self.cropper = Cropper(crop_cfg=CropConfig, device_id=torch.cuda.current_device())
+            crop_cfg = CropConfig()
+            # `crop_config.py` 里的默认值是另一台机器的绝对路径。路径不对时 insightface 会去
+            # GitHub 下载 buffalo_l，离线集群上表现为连到超时（很难看出是路径问题），
+            # 所以这里允许从运行配置覆盖，并在加载之前把缺的文件直接报出来。
+            for key, value in (("insightface_root", config.get("crop_insightface_root")),
+                               ("landmark_ckpt_path", config.get("crop_landmark_ckpt_path")),
+                               ("xpose_ckpt_path", config.get("crop_xpose_ckpt_path"))):
+                if value:
+                    setattr(crop_cfg, key, value)
+            required = [("crop_insightface_root", os.path.join(crop_cfg.insightface_root, "models", "buffalo_l")),
+                        ("crop_landmark_ckpt_path", crop_cfg.landmark_ckpt_path)]
+            missing = [f"{key}={value}" for key, value in required if not os.path.exists(value)]
+            if missing:
+                raise FileNotFoundError(
+                    "crop_face=true 需要人脸裁剪的权重，但下面这些路径不存在：\n  " + "\n  ".join(missing)
+                    + "\n三种处理方式：① 配好 crop_insightface_root（内含 models/buffalo_l）与 "
+                      "crop_landmark_ckpt_path（liveportrait landmark.onnx）；"
+                      "② 用 crop_face: false —— 参考图本来就是人脸裁剪时（例如 "
+                      "dataset/extract_ref_face_feats.py 产出的 2.2 倍留白图）它与训练条件一致，"
+                      "且不需要这些权重；③ 不要指望在线下载：insightface 会去 GitHub 取 buffalo_l，"
+                      "离线集群上只会卡到连接超时")
+            self.cropper = Cropper(crop_cfg=crop_cfg, device_id=torch.cuda.current_device())
         else:
             self.cropper = None
         

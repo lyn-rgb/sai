@@ -34,7 +34,10 @@ mode: "id2v"
 fp8: false
 cpu_offload: false
 seed: 102
-crop_face: true
+# 参考脸已经是人脸裁剪（dataset/extract_ref_face_feats.py 产出的 2.2 倍留白图）→ 关掉：
+# 这与训练时喂给模型的图完全一致，也不需要再检一次脸。若改成 true（例如传整帧画面），
+# 必须同时提供 crop_insightface_root（含 models/buffalo_l）与 crop_landmark_ckpt_path。
+crop_face: false
 # NOTE, with two reference persons the negative prompt should not discourage two people:
 # the `two people, two persons` entries of the single-person config are intentionally dropped here.
 video_negative_prompt: "jitter, bad hands, blur, distortion, aerial view, overexposed, low quality, deformation, a poor composition, bad hands, bad teeth, bad eyes, bad limbs, blurring, text, subtitles, static, picture, black border"

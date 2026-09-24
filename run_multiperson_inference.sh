@@ -36,6 +36,9 @@ SEED=${SEED:-102}
 EACH_EXAMPLE_N_TIMES=${EACH_EXAMPLE_N_TIMES:-1}
 N_REFS=${N_REFS:-2}                 # 必须与训练/ckpt 一致
 SKIP_EXISTING=${SKIP_EXISTING:-0}   # 1 = 跳过已生成的输出
+# 参考图是否再检一次脸：默认 0（我们的参考图就是人脸裁剪，与训练条件一致，也不需要裁剪权重）。
+# 置 1 需要 crop_insightface_root（含 models/buffalo_l）+ crop_landmark_ckpt_path，否则会直接报错。
+CROP_FACE=${CROP_FACE:-0}
 CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
 PYTHON_BIN=${PYTHON_BIN:-}
 # ====================================================================
@@ -139,12 +142,12 @@ echo "==> [2/3] 生成 prompt CSV"
 RUN_CONFIG="$(mktemp "${TMPDIR:-/tmp}/multiperson_infer.XXXXXX").yaml"
 "$PYTHON_BIN" - "$TRAIN_CONFIG" "$INFER_CONFIG" "$RUN_CONFIG" \
   "$LORA_PATH" "$CKPT_DIR" "$PROMPT_CSV" "$OUTPUT_DIR" "$N_REFS" "$SAMPLE_STEPS" "$SEED" \
-  "$EACH_EXAMPLE_N_TIMES" "$SKIP_EXISTING" "$TESTDATA_DIR" <<'PY'
+  "$EACH_EXAMPLE_N_TIMES" "$SKIP_EXISTING" "$TESTDATA_DIR" "$CROP_FACE" <<'PY'
 from pathlib import Path
 import sys
 
 (train_config, infer_config, out_path, lora_path, ckpt_dir, prompt_csv, output_dir,
- n_refs, sample_steps, seed, each_n, skip_existing, testdata_dir) = sys.argv[1:14]
+ n_refs, sample_steps, seed, each_n, skip_existing, testdata_dir, crop_face) = sys.argv[1:15]
 
 
 def read_yaml_lines(path):
@@ -171,7 +174,8 @@ for line in read_yaml_lines(infer_config):
 overrides = {"ckpt_dir": ckpt_dir, "lora_path": lora_path, "text_prompt": prompt_csv,
              "output_dir": output_dir, "n_refs": n_refs, "sample_steps": sample_steps,
              "seed": seed, "each_example_n_times": each_n,
-             "skip_existing_outputs": "true" if str(skip_existing) == "1" else "false"}
+             "skip_existing_outputs": "true" if str(skip_existing) == "1" else "false",
+             "crop_face": "true" if str(crop_face) == "1" else "false"}
 from_train = {}
 for line in train_lines:
     key = key_of(line)

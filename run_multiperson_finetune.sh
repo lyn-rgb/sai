@@ -77,8 +77,8 @@ if [[ $RUN_TRAIN -eq 1 ]]; then
   [[ -f "$START_CKPT" ]] || fail "起始 checkpoint 不存在：${START_CKPT}（注意这是单人 ckpt，不是多人轮的产物）"
 fi
 
-# 多机 / 单机
-if [[ -n "${WORLD_SIZE:-}" && -n "${RANK:-}" ]]; then
+# 多机 / 单机（WORLD_SIZE=1 时仍按单机走，平台常常会把它设成 1）
+if [[ -n "${WORLD_SIZE:-}" && "${WORLD_SIZE:-1}" -gt 1 && -n "${RANK:-}" ]]; then
   NUM_MACHINES=$WORLD_SIZE
   MACHINE_RANK=$RANK
   NPROC_PER_NODE=${PET_NPROC_PER_NODE:-$("$PYTHON_BIN" -c "import torch;print(torch.cuda.device_count())")}
@@ -213,6 +213,8 @@ PY
   export NCCL_DEBUG="${NCCL_DEBUG:-ERROR}"
   export TORCH_NCCL_ASYNC_ERROR_HANDLING=1
   export TOKENIZERS_PARALLELISM=false
+  export CUDA_LAUNCH_BLOCKING=0
+  export ENABLE_COMPILE=false
   if [[ $NUM_MACHINES -gt 1 ]]; then
     export NCCL_CROSS_NIC=1 NCCL_IB_GID_INDEX=3 NCCL_IB_TIMEOUT=22 NCCL_NET_PLUGIN=none
   fi

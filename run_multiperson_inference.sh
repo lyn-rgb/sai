@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # 多人参考微调后的推理：训练 CSV 里的样本 → testdata → prompt CSV → new_infer.py
 #
-#   bash run_multiperson_inference.sh                      # 用最新 ckpt + 训练 CSV 的前 3 条样本
+#   bash run_multiperson_inference.sh                      # 用最新 ckpt + 训练 CSV 的前 10 条样本
+#   LIMIT=20 bash run_multiperson_inference.sh              # 测多少条
+#   EACH_EXAMPLE_N_TIMES=2 bash run_multiperson_inference.sh  # 每条多个 seed（看稳定性）
+#   SAMPLE_IDS="<id1> <id2>" bash run_multiperson_inference.sh  # 指定样本
 #   SAMPLE_IDS="<hash1> <hash2>" bash run_multiperson_inference.sh
 #   LORA_PATH=logs/xxx/ckpt/step-5000.safetensors bash run_multiperson_inference.sh
 #   SOURCE=testdata TESTDATA_DIR=/abs/my_testdata bash run_multiperson_inference.sh   # 用自己准备的素材
@@ -27,8 +30,8 @@ LORA_PATH=${LORA_PATH:-}
 # 推理素材来源：csv = 从训练 CSV 的样本生成（默认）；testdata = 直接用下面这个目录里已有的素材
 SOURCE=${SOURCE:-csv}
 TESTDATA_DIR=${TESTDATA_DIR:-$ROOT_DIR/evaluation/testdata_multiperson}
-SAMPLE_IDS=${SAMPLE_IDS:-}          # 空 = 取 CSV 前 LIMIT 条
-LIMIT=${LIMIT:-3}
+SAMPLE_IDS=${SAMPLE_IDS:-}          # 空 = 取 CSV 前 LIMIT 条（可写多个 id，用空格分隔）
+LIMIT=${LIMIT:-10}                  # 默认多测几条；每条 5s 视频按 SAMPLE_STEPS 计一次采样时间
 
 OUTPUT_DIR=${OUTPUT_DIR:-./outputs/full_ovi_multiperson_5s}
 SAMPLE_STEPS=${SAMPLE_STEPS:-50}    # 采样步数（50 是 5s 的常用值；越大越慢）

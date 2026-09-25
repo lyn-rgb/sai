@@ -157,18 +157,24 @@ fix_prompt_with_asr: false    # 见下
 一键脚本（推荐，直接用训练 CSV 里的样本当推理输入）：
 
 ```bash
-# 用 logs 下最新的 step-*.safetensors + 训练 CSV 的前 3 条样本
+# 用 logs 下最新的 step-*.safetensors + 训练 CSV 的前 10 条样本
 bash run_multiperson_inference.sh
 
-SAMPLE_IDS="<hash1> <hash2>" bash run_multiperson_inference.sh      # 指定样本
+LIMIT=20 bash run_multiperson_inference.sh                        # 测多少条（默认 10）
+EACH_EXAMPLE_N_TIMES=2 bash run_multiperson_inference.sh          # 每条多个 seed，看稳定性
+SAMPLE_IDS="<hash1> <hash2>" bash run_multiperson_inference.sh     # 指定样本
 LORA_PATH=logs/<run>/ckpt/step-5000.safetensors bash run_multiperson_inference.sh
-PREPARE_ONLY=1 bash run_multiperson_inference.sh                    # 只准备数据，打印将执行的命令
+PREPARE_ONLY=1 bash run_multiperson_inference.sh                  # 只准备数据，打印将执行的命令
+DUMP_INPUTS=0 bash run_multiperson_inference.sh                   # 不归档参考素材
 ```
 
-它做三件事：`evaluation/build_multiperson_testdata.py` 把训练 CSV 的行变成 testdata 目录 →
+它做四件事：`evaluation/build_multiperson_testdata.py` 把训练 CSV 的行变成 testdata 目录 →
 `evaluation/build_testdata_prompt_csv.py --mode multiperson` 生成 prompt CSV →
-用「训练配置 + 推理配置」合并出的临时 yaml 调 `new_infer.py`。输出在
-`<output_dir>/ip_image_True_ip_audio_True_N<n>/<序号>_crop-True_<prompt>_<HxW>_<seed>_0.mp4`。
+用「训练配置 + 推理配置」合并出的临时 yaml 调 `new_infer.py` →
+`evaluation/dump_inference_inputs.py` 把参考素材归档进结果目录。输出在
+`<output_dir>/ip_image_True_ip_audio_True_N<n>/<序号>_crop-True_<prompt>_<HxW>_<seed>_0.mp4`，
+输入在 `<output_dir>/inputs/<sample_id>/`（caption.txt + ref_face_p*.jpg + ref_audio_p*.wav +
+manifest.csv ↔ 生成结果的对应关系）。
 
 两个容易踩的点，脚本已经处理：
 

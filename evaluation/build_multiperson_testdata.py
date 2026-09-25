@@ -3,7 +3,7 @@
     python evaluation/build_multiperson_testdata.py \
         --meta-csv /abs/.../multiperson_n2/multiperson_meta.csv \
         --testdata-dir /abs/.../testdata_multiperson \
-        --ids <hash1> <hash2>            # 省略 = 取前 --limit 条（默认 3）
+        --ids <hash1> <hash2>            # 省略 = 取前 --limit 条（默认 10）
 
 Produces exactly the layout `evaluation/build_testdata_prompt_csv.py --mode multiperson` expects:
 
@@ -130,7 +130,7 @@ def main() -> int:
     parser.add_argument("--meta-csv", type=Path, required=True, help="训练用的 multiperson_meta.csv")
     parser.add_argument("--testdata-dir", type=Path, required=True)
     parser.add_argument("--ids", nargs="*", default=[], help="视频 id（裸 hash / <hash>.mp4 / 整条路径）")
-    parser.add_argument("--limit", type=int, default=3, help="没给 --ids 时取前几条")
+    parser.add_argument("--limit", type=int, default=10, help="没给 --ids 时取前几条")
     parser.add_argument("--num-frames", type=int, default=121,
                         help="必须与训练一致：参考音频按「目标窗口之外」切片需要它")
     parser.add_argument("--ref-audio-frames", type=int, default=24)
@@ -147,8 +147,12 @@ def main() -> int:
     print(f"CSV: {args.meta_csv}（{len(rows)} 行）→ testdata: {args.testdata_dir}")
     print(f"参考音频 {ref_audio_samples} 采样（{args.ref_audio_frames} 帧 @ {args.target_fps}fps），"
           f"窗口 {args.num_frames} 帧")
-    kept = 0
+    kept, seen = 0, set()
     for sample_id in sample_ids:
+        if sample_id in seen:      # CSV 里同一个视频出现两次：testdata 只能存一份，跳过并说明
+            print(f"  ⚠️  {sample_id}: 重复出现，跳过（同名样本会互相覆盖）")
+            continue
+        seen.add(sample_id)
         row = index.get(sample_id)
         if row is None:
             print(f"  ❌ {sample_id}: 不在这份 CSV 里")
